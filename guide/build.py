@@ -126,7 +126,7 @@ table.defs td:first-child { width: 30%; color: var(--teal); white-space: normal;
 .page > .line { margin-bottom: 1.6mm; }
 
 /* Chat example: messages as bubbles, yours on the right. */
-.bubble { max-width: 80%; border-radius: 4mm; padding: 2.4mm 3.4mm; margin: 0 0 2mm; font-size: 8.6pt; line-height: 1.45; break-inside: avoid; }
+.bubble { width: fit-content; max-width: 80%; border-radius: 4mm; padding: 2.4mm 3.4mm; margin: 0 0 2mm; font-size: 8.6pt; line-height: 1.45; break-inside: avoid; }
 .bubble p { margin: 0; }
 .bubble.me { margin-left: auto; background: var(--teal); color: #fff; border-bottom-right-radius: 1mm; }
 .bubble.them { background: #f0efea; border-bottom-left-radius: 1mm; }
