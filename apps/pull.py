@@ -51,7 +51,7 @@ def dk(*args: str) -> dict:
 
 def ls(folder: str) -> list[dict]:
     out = dk("ls", folder)
-    if not isinstance(out.get("files"), list):
+    if not isinstance(out, dict) or not isinstance(out.get("files"), list):
         sys.exit(f"drivekey ls {folder}: unexpected output (no 'files' list); is drivekey up to date?")
     return out["files"]
 

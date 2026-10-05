@@ -15,13 +15,17 @@ CLOUDFLARE_API_TOKEN environment variable.
 The dashboard is private. Before uploading it, this script opens its address and checks that a
 Cloudflare Access login page answers. If not (or no address was given), it uploads only a
 "locked" placeholder page with no data and stops, so you can turn on Access first:
-    Cloudflare dashboard > Workers & Pages > WORKER_NAME > Access > Protect this Worker behind Access
-Then run it again with WORKER_NAME=ADDRESS.
+    Cloudflare dashboard > Workers & Pages > WORKER_NAME > Settings > Access > Protect this Worker behind Access
+Then run it again with WORKER_NAME=ADDRESS. On a workers.dev address the script also uploads the
+locked page first and checks that wrangler serves the Worker at exactly that address (only
+wrangler knows the account's subdomain); the dashboard shows the locked page for a few seconds
+during each update because of this.
 """
 from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 import tempfile
@@ -52,12 +56,28 @@ def config(name: str, folder: Path, address: str) -> dict:
     return cfg
 
 
-def wrangler_deploy(name: str, folder: Path, address: str) -> None:
+def wrangler_deploy(name: str, folder: Path, address: str) -> str:
+    """Deploy and return wrangler's output (also shown to the user)."""
     with tempfile.TemporaryDirectory() as tmp:
         path = Path(tmp) / "wrangler.json"
         path.write_text(json.dumps(config(name, folder, address), indent=2))
-        if subprocess.run(["wrangler", "deploy", "--config", str(path)]).returncode != 0:
+        run = subprocess.run(["wrangler", "deploy", "--config", str(path)], capture_output=True, text=True)
+        print(run.stdout + run.stderr, end="")
+        if run.returncode != 0:
             sys.exit(f"wrangler deploy failed for Worker '{name}'")
+        return run.stdout + run.stderr
+
+
+def deploy_locked(name: str, address: str) -> str:
+    with tempfile.TemporaryDirectory() as tmp:
+        (Path(tmp) / "index.html").write_text(LOCKED)
+        return wrangler_deploy(name, Path(tmp), address)
+
+
+def served_workers_dev(output: str, name: str) -> str:
+    """The NAME.<subdomain>.workers.dev address wrangler reported, or ""."""
+    m = re.search(rf"https://({re.escape(name)}\.[a-z0-9-]+\.workers\.dev)", output)
+    return m.group(1) if m else ""
 
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -112,14 +132,20 @@ def main() -> None:
         if address_problem(name, address):
             sys.exit(f"dashboard: {address_problem(name, address)}")
         if address and behind_login(address):
+            if address.endswith(".workers.dev"):
+                # Only wrangler knows the account's workers.dev subdomain. Upload the locked page
+                # first, read the address it is really served at, and require that to be the
+                # address whose login was just checked; only then upload the data.
+                served = served_workers_dev(deploy_locked(name, address), name)
+                if served != address:
+                    sys.exit(f"dashboard: Worker '{name}' is served at {served or 'an unknown address'}, not {address}; "
+                             f"only the locked page was uploaded. Use --dashboard {name}={served or 'ADDRESS'}")
             print(f"dashboard: {address} asks for a login; deploying Worker '{name}'")
             wrangler_deploy(name, args.build / "dashboard", address)
             return
         where = address or "its workers.dev address"
         print(f"dashboard: {where} does not ask for a login yet; uploading a locked placeholder only (no data)")
-        with tempfile.TemporaryDirectory() as tmp:
-            (Path(tmp) / "index.html").write_text(LOCKED)
-            wrangler_deploy(name, Path(tmp), address)
+        deploy_locked(name, address)
         again = "this command again" if address else \
             f"again with --dashboard {name}=ADDRESS, using the workers.dev address printed above"
         sys.exit(f"Next: Cloudflare dashboard > Workers & Pages > {name} > Settings > Access > Protect this Worker behind Access\n"
