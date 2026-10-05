@@ -112,7 +112,12 @@ def main() -> int:
     if args.documents:
         if not args.documents.is_file():
             sys.exit(f"--documents {args.documents}: no such file (run pull.py first, or leave the option out)")
-        documents = json.loads(args.documents.read_text())
+        try:
+            documents = json.loads(args.documents.read_text())
+        except ValueError as e:
+            sys.exit(f"--documents {args.documents}: not valid JSON ({e}); run pull.py again")
+        if not isinstance(documents, dict) or not isinstance(documents.get("items"), list):
+            sys.exit(f"--documents {args.documents}: expected {{\"root_url\": ..., \"items\": [...]}} as written by pull.py")
     warnings: list[str] = []
     built = []
 
