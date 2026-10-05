@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- New landing page at life-crm.jerryfane.com: the quiet design with the "Chat" hero (the
+  prompt is the first message of a chat with your agent, Maya's dashboard on an iPhone is the
+  answer), timeline, how the pieces fit, three live examples, steps, cost and privacy. On phones
+  the chat and its Copy button fit the first screen down to 375×667.
 - Guide rewritten (14 pages, one topic per page): what it is, the framework diagram and each
   piece explained, the personal chat assistant with an example chat, before you start, one page
   per setup step with examples (dictating with Wispr Flow, example goals, what "choose" means),
