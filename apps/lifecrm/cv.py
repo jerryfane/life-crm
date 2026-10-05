@@ -10,7 +10,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from .site import ordered_sections, profile_links, read_entries, read_profile
+from .site import compact_sections, one_line, ordered_sections, profile_links, read_entries, read_profile
 
 _TEX = {"\\": r"\textbackslash{}", "&": r"\&", "%": r"\%", "$": r"\$", "#": r"\#", "_": r"\_",
         "{": r"\{", "}": r"\}", "~": r"\textasciitilde{}", "^": r"\textasciicircum{}"}
@@ -40,6 +40,19 @@ def _entry(x: dict) -> str:
     return "\\noindent\\begin{minipage}{\\linewidth}\n" + "\n".join(parts) + "\n\\end{minipage}\\par"
 
 
+def _section_body(items: list[dict], compact: bool) -> str:
+    if not compact:
+        return "\n\\gap\n".join(_entry(x) for x in items)
+    lines = []
+    for x in items:
+        title, rest, is_label = one_line(x)
+        if is_label:
+            lines.append(rf"\textbf{{{tex(title)}:}} {tex(rest)}")
+        else:
+            lines.append(rf"\textbf{{{tex(title)}}}" + (rf" \textperiodcentered{{}} {tex(rest)}" if rest else ""))
+    return "{\\small\n" + " \\\\\n".join(lines) + "\\par}"
+
+
 def render(wb, template: Path, warnings: list[str], with_phone: bool = True) -> str:
     p = read_profile(wb)
     sections = ordered_sections(p, read_entries(wb, warnings))
@@ -48,7 +61,9 @@ def render(wb, template: Path, warnings: list[str], with_phone: bool = True) -> 
         contact.append(rf"\href{{{url}}}{{{tex(re.sub(r'^https?://(www\.)?', '', url).rstrip('/'))}}}")
     if p.get("site_url"):
         contact.append(rf"\href{{{p['site_url']}}}{{{tex(re.sub(r'^https?://', '', p['site_url']).rstrip('/'))}}}")
-    body = "\n".join(rf"\section{{{tex(title)}}}" + "\n" + "\n\\gap\n".join(_entry(x) for x in items) for title, items in sections)
+    compact = compact_sections(p)
+    body = "\n".join(rf"\section{{{tex(title)}}}" + "\n" + _section_body(items, title.lower() in compact)
+                     for title, items in sections)
     return (template.read_text()
             .replace("<<NAME>>", tex(p.get("name", "")))
             .replace("<<HEADLINE>>", tex(p.get("headline", "")))

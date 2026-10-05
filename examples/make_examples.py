@@ -64,6 +64,7 @@ def career():
         ["photo", "photo.jpg"],
         ["sections", "Education, Research & Publications, Clinical Rotations & Electives, Work Experience, Teaching, Leadership & Community, Conferences & Continuing Education, Workshops, Certifications"],
         ["site_url", "https://life-crm.jerryfane.com/demo/site"],
+        ["compact", "Certifications"],
     ], first=True)
 
     CL, WK, TE, LC, CO, WS, CE, ED, RE = ("Clinical Rotations & Electives", "Work Experience", "Teaching", "Leadership & Community",

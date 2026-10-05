@@ -87,6 +87,33 @@ def _entry(x: dict) -> str:
       </article>"""
 
 
+def compact_sections(profile: dict) -> set[str]:
+    """Profile `compact`: comma-separated Entries sections shown one line per row (e.g. certificates)."""
+    return {s.strip().lower() for s in profile.get("compact", "").split(",") if s.strip()}
+
+
+def one_line(x: dict) -> tuple[str, str, bool]:
+    """A row of a compact section as (title, rest, is_label): ("Languages", "English, Italian", True)
+    when the row has only a summary, else ("BLS Provider", "Heart Association · Apr 2025", False)."""
+    when = " – ".join(v for v in (x["start"], x["end"]) if v)
+    rest = " · ".join(v for v in (x["organization"], x["location"], when) if v)
+    return (x["title"], rest, False) if rest else (x["title"], x["summary"], bool(x["summary"]))
+
+
+def _section_body(items: list[dict], compact: bool) -> str:
+    if not compact:
+        return "".join(_entry(x) for x in items)
+    lis = []
+    for x in items:
+        title, rest, is_label = one_line(x)
+        t = e(title)
+        if x["link"].startswith(("http://", "https://")):
+            t = f'<a href="{e(x["link"])}" rel="noopener">{t}</a>'
+        tail = (" " if is_label else " · ") + e(rest) if rest else ""
+        lis.append(f"<li><strong>{t}{':' if is_label else ''}</strong>{tail}</li>")
+    return f"\n      <ul class=\"plain\">{''.join(lis)}</ul>"
+
+
 def render(profile: dict, sections: list, has_photo: bool, cv_href: str) -> str:
     name = profile.get("name", "")
     headline = profile.get("headline", "")
@@ -97,7 +124,9 @@ def render(profile: dict, sections: list, has_photo: bool, cv_href: str) -> str:
     links += [f'<a href="{e(u)}" rel="noopener">{e(lbl)}</a>' for lbl, u in profile_links(profile)]
     if cv_href:
         links.append(f'<a href="{e(cv_href)}" download>Download CV</a>')
-    body = "".join(f'\n    <section>\n      <h2>{e(title)}</h2>{"".join(_entry(x) for x in items)}\n    </section>' for title, items in sections)
+    compact = compact_sections(profile)
+    body = "".join(f'\n    <section>\n      <h2>{e(title)}</h2>{_section_body(items, title.lower() in compact)}\n    </section>'
+                   for title, items in sections)
     photo = f'<img class="photo" src="photo.jpg" alt="{e(name)}" width="160" height="160">' if has_photo else ""
     og = f'<meta property="og:url" content="{e(site_url)}/">\n<link rel="canonical" href="{e(site_url)}/">' if site_url else ""
     if site_url and has_photo:

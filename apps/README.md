@@ -124,6 +124,7 @@ doing/applied/scheduled/pending are purple, rejected/overdue/missed/high are red
 | `sections` | order of the Entries sections, comma-separated | same |
 | `site_url` | the site's address, for search engines and link previews | listed |
 | `cv_on_site` | `no` hides the "Download CV" link (default: shown when built with `--cv`) | |
+| `compact` | Entries sections shown one line per row, comma-separated, e.g. `Certifications`. A row with only a title and summary shows as "**Title:** summary" (good for Languages) | same |
 
 **Entries**: one row per line of your CV.
 
