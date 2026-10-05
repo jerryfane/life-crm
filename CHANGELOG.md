@@ -7,7 +7,7 @@
   answer), timeline, how the pieces fit, three live examples, steps, cost and privacy. On phones
   the chat and its Copy button fit the first screen down to 375×667.
 - Guide (15 pages): the chat assistant page explains what one is, and a new page compares real
-  options (Claude, Muse by Meta, Hermes Agent, OpenClaw, Grok Bot; checked October 2026) and the
+  options (Claude, dots by OpenAI, Muse by Meta, Hermes Agent, OpenClaw, Grok Bot; checked October 2026) and the
   ones to skip; skill step 6 carries the same list. Step 1 shows the full prompt to paste. The
   site address life-crm.jerryfane.com is on the first and last pages.
 - Guide rewritten (one topic per page): what it is, the framework diagram and each

@@ -29,13 +29,15 @@ Explain it in those words if they have never used one.
    | Assistant | Where they chat | Sheets | Setup |
    |---|---|---|---|
    | Claude (claude.ai) | Claude app, web, desktop | Read + edit (beta, web and desktop) | Toggle the Google connectors |
+   | dots by OpenAI (learn.chatgpt.com/docs/dots) | ChatGPT (create on desktop first, then mobile app), Slack, Teams; texting "coming soon" | Read + update via the Google Drive plugin (covers Drive, Docs, Sheets, Slides) | ChatGPT Pro ($100/$200/$500 a month), 18+, not in EEA/UK/Switzerland; also Business Premium and Enterprise; rolling out gradually |
    | Muse by Meta (ai.meta.com/muse) | WhatsApp, Muse app | Google connectors; Sheets editing not confirmed by Meta | Tap Connectors; US only; free with a limit |
    | Hermes Agent (hermes-agent.nousresearch.com, github.com/NousResearch/hermes-agent) | Telegram, WhatsApp, Slack, Signal, more | Read + write via its Google Workspace skill | Self-hosted or Hermes Cloud; needs a Google Cloud OAuth client; pay for the model |
    | OpenClaw (openclaw.ai, github.com/openclaw/openclaw) | WhatsApp, Telegram, iMessage, more | Read + write via the `gog` skill | Runs on their computer (must stay on); needs a Google OAuth client; pay for the model |
    | Grok Bot by xAI (docs.x.ai/grok-bot) | Own app only | Sheets connector exists; editing not documented | Paid (Cursor Pro or SuperGrok, from $20/month) |
 
-   Do not suggest Dot by New Computer (shut down October 2025), the Gemini app (cannot edit
-   Drive) or @GrokAI on Telegram (no Drive access). Link only the official sites above: look-alike
+   Do not suggest the Gemini app (cannot edit Drive) or @GrokAI on Telegram (no Drive access).
+   "Dot" means OpenAI's dots, not the older Dot app by New Computer, which shut down in October
+   2025. Link only the official sites above: look-alike
    domains exist for Hermes and OpenClaw. For Hermes or OpenClaw you do the install and the Google
    OAuth setup with them, asking before anything that costs money; never ask for their password.
 3. Decide now how updates will reach the sites (the options are in
