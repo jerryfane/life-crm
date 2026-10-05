@@ -1,9 +1,12 @@
-"""Spreadsheet (Profile + Entries tabs) -> public one-page site.
+"""Spreadsheet (Profile + Entries tabs) -> public one-page site, laid out like a CV: a sticky sidebar
+(photo, name, contact buttons, contents with scroll-spy) and one row per entry whose summary and
+highlights open on tap. Static files (style.css, site.js, fonts, 404.html) come from apps/site/.
 
 Profile (key/value) keys used here:
   name, headline, location, about, email, photo (file name; build.py looks for it next to the
   spreadsheet, pull.py fetches it from the Drive folder, also from a path like "Website/photo.jpg"),
-  sections (comma-separated order of Entries sections), site_url,
+  sections (comma-separated order of Entries sections), compact (sections shown one line per row),
+  site_url, cv_on_site (build.py decides whether a public CV is passed in),
   link: <Label>  (any number, e.g. "link: LinkedIn" -> URL)
 Never shown on the site: phone and any other key not listed above.
 
@@ -12,9 +15,11 @@ Entries columns: show, section, title, organization, location, start, end, summa
 """
 from __future__ import annotations
 
+import re
 import shutil
 from html import escape
 from pathlib import Path
+from urllib.parse import urlparse
 
 from .sheet import YES, key_values, rows_of, tab, text
 
@@ -75,20 +80,58 @@ def _bullet(line: str) -> str:
     return e(line)
 
 
-def _entry(x: dict) -> str:
-    when = " – ".join(v for v in (x["start"], x["end"]) if v)
-    org = " · ".join(v for v in (x["organization"], x["location"]) if v)
-    title = e(x["title"])
-    if x["link"].startswith(("http://", "https://")):
-        title = f'<a href="{e(x["link"])}" rel="noopener">{title}</a>'
-    bullets = "".join(f"<li>{_bullet(ln.strip())}</li>" for ln in x["highlights"].splitlines() if ln.strip())
-    return f"""
-      <article class="entry">
-        <div class="entry-head"><h3>{title}</h3>{f'<span class="when">{e(when)}</span>' if when else ''}</div>
-        {f'<p class="org">{e(org)}</p>' if org else ''}
-        {f'<p class="summary">{e(x["summary"])}</p>' if x["summary"] else ''}
-        {f'<ul>{bullets}</ul>' if bullets else ''}
-      </article>"""
+def _when(x: dict) -> str:
+    return " – ".join(v for v in (x["start"], x["end"]) if v)
+
+
+def _url(x: dict) -> str:
+    return x["link"] if x["link"].startswith(("http://", "https://")) else ""
+
+
+ICONS = {
+    "mail": '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
+    "out": '<path d="M7 17 17 7"/><path d="M9 7h8v8"/>',
+    "download": '<path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/>',
+}
+
+
+def _icon(name: str) -> str:
+    return ('<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" '
+            f'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{ICONS[name]}</svg>')
+
+
+def _entry(x: dict, compact: bool) -> str:
+    """One row: title with organization · location under it, dates on the right. Summary, highlights
+    and link open on tap (<details>); compact rows and rows with nothing more are static."""
+    url = _url(x)
+    if compact:
+        title, rest, is_label = one_line(x)
+        sub, when = (rest, "") if is_label else (" · ".join(v for v in (x["organization"], x["location"]) if v), _when(x))
+        body = ""
+    else:
+        title, when = x["title"], _when(x)
+        sub = " · ".join(v for v in (x["organization"], x["location"]) if v)
+        bullets = "".join(f"<li>{_bullet(ln.strip())}</li>" for ln in x["highlights"].splitlines() if ln.strip())
+        body = (f'<p>{e(x["summary"])}</p>' if x["summary"] else "") + (f"<ul>{bullets}</ul>" if bullets else "")
+        if body and url:
+            host = (urlparse(url).hostname or url).removeprefix("www.")
+            body += f'<p class="lk"><a href="{e(url)}" rel="noopener">{_icon("out")}{e(host)}</a></p>'
+    t = f'<a href="{e(url)}" rel="noopener">{e(title)}</a>' if url and not body else e(title)
+    o = f' <span class="o">{e(sub)}</span>' if sub else ""
+    head = f'<h3 class="et"><span class="t">{t}</span>{o}</h3><span class="d">{e(when)}</span>'
+    if body:
+        return (f'<details class="e"><summary class="e-r">{head}<span class="pm" aria-hidden="true"></span></summary>'
+                f'<div class="e-b">{body}</div></details>')
+    return f'<div class="e"><div class="e-r">{head}<span class="pm off" aria-hidden="true"></span></div></div>'
+
+
+def _section_ids(titles: list[str]) -> list[str]:
+    """Anchors for the contents list: "Research & Publications" -> "research-publications", unique."""
+    ids: list[str] = []
+    for i, t in enumerate(titles, 1):
+        sid = re.sub(r"[^a-z0-9]+", "-", t.lower()).strip("-") or f"section-{i}"
+        ids.append(sid if sid not in ids else f"{sid}-{i}")
+    return ids
 
 
 def compact_sections(profile: dict) -> set[str]:
@@ -104,34 +147,27 @@ def one_line(x: dict) -> tuple[str, str, bool]:
     return (x["title"], rest, False) if rest else (x["title"], x["summary"], bool(x["summary"]))
 
 
-def _section_body(items: list[dict], compact: bool) -> str:
-    if not compact:
-        return "".join(_entry(x) for x in items)
-    lis = []
-    for x in items:
-        title, rest, is_label = one_line(x)
-        t = e(title)
-        if x["link"].startswith(("http://", "https://")):
-            t = f'<a href="{e(x["link"])}" rel="noopener">{t}</a>'
-        tail = (" " if is_label else " · ") + e(rest) if rest else ""
-        lis.append(f"<li><strong>{t}{':' if is_label else ''}</strong>{tail}</li>")
-    return f"\n      <ul class=\"plain\">{''.join(lis)}</ul>"
+def _button(href: str, icon: str, label: str, attrs: str = "") -> str:
+    return f'<a class="btn" href="{e(href)}"{attrs}>{_icon(icon)}<span>{e(label)}</span></a>'
 
 
 def render(profile: dict, sections: list, has_photo: bool, cv_href: str) -> str:
     name = profile.get("name", "")
     headline = profile.get("headline", "")
     site_url = profile.get("site_url", "").rstrip("/")
-    links = []
-    if profile.get("email"):
-        links.append(f'<a href="mailto:{e(profile["email"])}">Email</a>')
-    links += [f'<a href="{e(u)}" rel="noopener">{e(lbl)}</a>' for lbl, u in profile_links(profile)]
+    buttons = [_button(f"mailto:{profile['email']}", "mail", "Email")] if profile.get("email") else []
+    buttons += [_button(u, "out", lbl, ' rel="noopener"') for lbl, u in profile_links(profile)]
     if cv_href:
-        links.append(f'<a href="{e(cv_href)}" download>Download CV</a>')
+        buttons.append(_button(cv_href, "download", "Download CV", " download"))
     compact = compact_sections(profile)
-    body = "".join(f'\n    <section>\n      <h2>{e(title)}</h2>{_section_body(items, title.lower() in compact)}\n    </section>'
-                   for title, items in sections)
-    photo = f'<img class="photo" src="photo.jpg" alt="{e(name)}" width="160" height="160">' if has_photo else ""
+    ids = _section_ids([title for title, _ in sections])
+    # Contents: the full section name in the sidebar, its first word in the phone's sideways row.
+    toc = "".join(f'<li><a href="#{sid}"><span class="l">{e(title)}</span><span class="m">{e((title.replace("&", " ").split() or [title])[0])}</span>'
+                  f'<span class="c">{len(items)}</span></a></li>' for sid, (title, items) in zip(ids, sections))
+    body = "".join(f'\n    <section class="sec" id="{sid}"><h2>{e(title)}</h2><div class="es">'
+                   + "".join(_entry(x, title.lower() in compact) for x in items) + "</div></section>"
+                   for sid, (title, items) in zip(ids, sections))
+    photo = f'<img class="photo" src="photo.jpg" alt="{e(name)}" width="120" height="150">' if has_photo else ""
     og = f'<meta property="og:url" content="{e(site_url)}/">\n<link rel="canonical" href="{e(site_url)}/">' if site_url else ""
     if site_url and has_photo:
         og += f'\n<meta property="og:image" content="{e(site_url)}/photo.jpg">'
@@ -148,23 +184,32 @@ def render(profile: dict, sections: list, has_photo: bool, cv_href: str) -> str:
 <meta property="og:description" content="{e(headline)}">
 {og}
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preload" href="fonts/source-serif-4.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/source-sans-3.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="style.css">
+<script src="site.js" defer></script>
 </head>
 <body>
-<main>
-  <header class="hero">
-    {photo}
-    <div>
-      <h1>{e(name)}</h1>
-      {f'<p class="headline">{e(headline)}</p>' if headline else ''}
-      {f'<p class="location">{e(profile["location"])}</p>' if profile.get('location') else ''}
-      <nav class="links">{''.join(links)}</nav>
+<div class="grid">
+  <header class="side">
+    <div class="me{' ph' if has_photo else ''}">
+      {photo}
+      <div>
+        <h1>{e(name)}</h1>
+        {f'<p class="head">{e(headline)}</p>' if headline else ''}
+        {f'<p class="loc">{e(profile["location"])}</p>' if profile.get('location') else ''}
+      </div>
     </div>
+    {f'<nav class="links" aria-label="Contact">{"".join(buttons)}</nav>' if buttons else ''}
+    {f'<nav class="toc" aria-label="Sections"><ol>{toc}</ol></nav>' if toc else ''}
   </header>
-  {f'<p class="about">{e(profile["about"])}</p>' if profile.get('about') else ''}
-  {body}
-</main>
-<footer>© {e(name)}</footer>
+  <div class="col">
+    <main>
+    {f'<p class="about">{e(profile["about"])}</p>' if profile.get('about') else ''}{body}
+    </main>
+    <footer class="foot">© {e(name)}</footer>
+  </div>
+</div>
 </body>
 </html>
 """
@@ -183,8 +228,9 @@ def build(wb, sheet_dir: Path, out: Path, static: Path, cv_pdf: Path | None, war
     sections = ordered_sections(profile, read_entries(wb, warnings))
     shutil.rmtree(out, ignore_errors=True)
     out.mkdir(parents=True)
-    for f in ("style.css", "404.html"):
+    for f in ("style.css", "site.js", "404.html"):
         shutil.copy2(static / f, out / f)
+    shutil.copytree(static / "fonts", out / "fonts")
     (out / "favicon.svg").write_text(favicon(profile.get("name", "")))
     (out / "robots.txt").write_text("User-agent: *\nAllow: /\n")
 
@@ -194,7 +240,8 @@ def build(wb, sheet_dir: Path, out: Path, static: Path, cv_pdf: Path | None, war
         if src.is_file():
             with Image.open(src) as img:
                 img = ImageOps.exif_transpose(img).convert("RGB")
-                ImageOps.fit(img, (640, 640), centering=(0.5, 0.4)).save(out / "photo.jpg", "JPEG", quality=85, optimize=True, progressive=True)
+                # A 4:5 portrait, as shown in the sidebar (also the link-preview image).
+                ImageOps.fit(img, (480, 600), centering=(0.5, 0.4)).save(out / "photo.jpg", "JPEG", quality=85, optimize=True, progressive=True)
             has_photo = True
         else:
             warnings.append(f"Profile: photo '{profile['photo']}' not found next to the spreadsheet")

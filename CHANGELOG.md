@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Public page: new "classic CV" layout. Sticky profile and section list on the left (a scrollable row of
+  section buttons on phones), compact entries on the right with details on tap; self-hosted fonts.
 - New landing page at life-crm.jerryfane.com: the quiet design with the "Chat" hero (the
   prompt is the first message of a chat with your agent, Maya's dashboard on an iPhone is the
   answer), timeline, how the pieces fit, three live examples, steps, cost and privacy. On phones

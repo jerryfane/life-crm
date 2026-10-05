@@ -123,14 +123,15 @@ doing/applied/scheduled/pending are purple, rejected/overdue/missed/high are red
 | `name`, `headline`, `location`, `email` | yes | yes |
 | `about` | yes | no |
 | `phone` | **never** | only in `cv/cv.pdf`, your own copy; the CV offered on the site leaves it out |
-| `photo` | file name, e.g. `photo.jpg` (or `Website/photo.jpg` inside the Drive folder) | no |
+| `photo` | file name, e.g. `photo.jpg` (or `Website/photo.jpg` inside the Drive folder); cropped to a 4:5 portrait | no |
 | `link: <Label>` | a link labelled `<Label>`, e.g. `link: LinkedIn` | the address |
-| `sections` | order of the Entries sections, comma-separated | same |
+| `sections` | order of the Entries sections, comma-separated; also the site's contents list | same |
 | `site_url` | the site's address, for search engines and link previews | listed |
 | `cv_on_site` | `no` hides the "Download CV" link (default: shown when built with `--cv`) | |
-| `compact` | Entries sections shown one line per row, comma-separated, e.g. `Certifications`. A row with only a title and summary shows as "**Title:** summary" (good for Languages) | same |
+| `compact` | Entries sections shown one line per row (no details to open), comma-separated, e.g. `Certifications`. A row with only a title and summary shows as "**Title:** summary" in the CV, the summary under the title on the site (good for Languages) | same |
 
-**Entries**: one row per line of your CV.
+**Entries**: one row per line of your CV. On the site each row shows title, organization · location
+and dates; the summary, highlights and link open when the row is tapped.
 
 | Column | Meaning |
 |---|---|
@@ -139,4 +140,4 @@ doing/applied/scheduled/pending are purple, rejected/overdue/missed/high are red
 | `start`, `end` | shown as typed, e.g. `Sep 2025`, `Present`, `May 2027 (expected)` |
 | `summary` | one paragraph |
 | `highlights` | one bullet per line; `Label: text` makes the label bold |
-| `link` | makes the title a link on the site |
+| `link` | on the site: a link under the summary, or the title itself when the row has no summary or highlights |
