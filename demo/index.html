@@ -272,18 +272,20 @@ h1 span { display: block; }
   .foot nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 16px; }
 }
 
-/* ── short phones (iPhone SE): tighten the hero so the prompt and its Copy button stay in the first screen ── */
+/* ── short phones (iPhone SE): tighten the hero so the whole chat stays in the first screen ── */
 @media (max-width: 640px) and (max-height: 700px) {
-  .hero-in { padding-top: 16px; gap: 16px; }
+  .hero-in { padding: 16px var(--pad-x) 12px; gap: 16px; }
   .head { gap: 8px; }
   h1 { font-size: 30px; }
   .sub { font-size: 15px; line-height: 1.4; }
   .cta { margin-top: 8px; }
   .chat-h { height: 36px; }
-  .chat-b { padding: 12px; }
+  .chat-b { gap: 12px; padding: 12px; }
   .msg.me { padding: 12px 14px 8px; }
   .msg.me .mono { font-size: 12.5px; line-height: 1.5; }
   .msg.me .prompt-f { margin-top: 8px; padding-top: 8px; }
+  .msg.ai { font-size: 14px; }
+  .chips { display: none; }
 }
 </style>
 </head>
