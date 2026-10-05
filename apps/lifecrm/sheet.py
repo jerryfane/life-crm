@@ -24,8 +24,10 @@ def text(value: object) -> str:
 
 
 def parse_date(value: object, *, end_of_month: bool = False) -> tuple[str, str] | None:
-    """(ISO date, precision 'day'|'month') or None. Accepts sheet dates, YYYY-MM-DD, DD/MM/YYYY,
-    YYYY-MM, 'May 2027'. Month-only dates mean the first of the month, or the last with end_of_month."""
+    """(ISO date, precision 'day'|'month') or None. Accepts sheet dates, YYYY-MM-DD, YYYY-MM and
+    'May 2027'. Month-only dates mean the first of the month, or the last with end_of_month.
+    Slash dates (05/06/2027) are rejected: day/month and month/day read the same, so a guess
+    could silently move an appointment; the caller turns None into a warning."""
     if isinstance(value, datetime):
         return value.date().isoformat(), "day"
     if isinstance(value, date):
@@ -36,8 +38,6 @@ def parse_date(value: object, *, end_of_month: bool = False) -> tuple[str, str] 
     try:
         if m := re.fullmatch(r"(\d{4})-(\d{1,2})-(\d{1,2})", s):
             return date(int(m[1]), int(m[2]), int(m[3])).isoformat(), "day"
-        if m := re.fullmatch(r"(\d{1,2})/(\d{1,2})/(\d{4})", s):  # day/month/year
-            return date(int(m[3]), int(m[2]), int(m[1])).isoformat(), "day"
         year = month = None
         if m := re.fullmatch(r"(\d{4})-(\d{1,2})", s):
             year, month = int(m[1]), int(m[2])

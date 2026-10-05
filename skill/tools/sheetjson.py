@@ -44,6 +44,8 @@ def dump(xlsx: Path) -> dict:
 
 
 def load(data: dict, xlsx: Path) -> None:
+    if not isinstance(data, dict) or not data:
+        sys.exit("the JSON has no tabs: expected {\"TabName\": [[header, ...], [row, ...]], ...}")
     wb = Workbook()
     wb.remove(wb.active)
     head_fill = PatternFill("solid", fgColor="E8F0EE")

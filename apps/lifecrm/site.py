@@ -16,7 +16,7 @@ import shutil
 from html import escape
 from pathlib import Path
 
-from .sheet import key_values, rows_of, shown, tab, text
+from .sheet import YES, key_values, rows_of, tab, text
 
 ENTRY_FIELDS = ["section", "title", "organization", "location", "start", "end", "summary", "highlights", "link"]
 
@@ -30,7 +30,11 @@ def read_entries(wb, warnings: list[str]) -> list[dict[str, str]]:
     ws = tab(wb, "Entries")
     out = []
     for n, r in rows_of(ws) if ws else []:
-        if not shown(r):
+        # Public rows need an explicit yes: a blank `show` cell keeps the row off the site and CV.
+        show = text(r.get("show")).lower()
+        if show not in YES:
+            if not show and text(r.get("title")):
+                warnings.append(f"Entries row {n}: '{text(r.get('title'))}': show is empty, so it is hidden; write yes to publish it")
             continue
         item = {f: text(r.get(f)) for f in ENTRY_FIELDS}
         if not item["title"]:

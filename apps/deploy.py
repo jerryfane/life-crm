@@ -29,6 +29,7 @@ import urllib.error
 import urllib.request
 from datetime import date
 from pathlib import Path
+from urllib.parse import urlparse
 
 LOCKED = """<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex"><title>Private</title>
@@ -72,10 +73,21 @@ def behind_login(address: str) -> bool:
         urllib.request.build_opener(NoRedirect).open(req, timeout=15)
         return False  # a page was served without a login
     except urllib.error.HTTPError as e:
-        location = e.headers.get("Location", "")
-        return e.code in (301, 302, 303, 307) and ".cloudflareaccess.com/" in location
+        # The redirect must go TO an Access host, not merely mention one somewhere in the URL.
+        host = (urlparse(e.headers.get("Location", "")).hostname or "").lower()
+        return e.code in (301, 302, 303, 307) and host.endswith(".cloudflareaccess.com")
     except (urllib.error.URLError, TimeoutError):
         return False  # not reachable yet (new address): treat as unprotected
+
+
+def address_problem(name: str, address: str) -> str:
+    """Why ADDRESS cannot be the Worker's address, or "" if it can.
+
+    A workers.dev Worker is always served at NAME.<account>.workers.dev, so a workers.dev ADDRESS
+    with another first label would check one address and publish to a different, unchecked one."""
+    if address.endswith(".workers.dev") and not address.startswith(f"{name}."):
+        return f"{address} is not Worker '{name}''s address; it must be {name}.<your-subdomain>.workers.dev"
+    return ""
 
 
 def main() -> None:
@@ -97,6 +109,8 @@ def main() -> None:
 
     if args.dashboard:
         name, _, address = args.dashboard.partition("=")
+        if address_problem(name, address):
+            sys.exit(f"dashboard: {address_problem(name, address)}")
         if address and behind_login(address):
             print(f"dashboard: {address} asks for a login; deploying Worker '{name}'")
             wrangler_deploy(name, args.build / "dashboard", address)

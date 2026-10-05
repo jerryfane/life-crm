@@ -49,6 +49,13 @@ def dk(*args: str) -> dict:
     return json.loads(p.stdout) if p.stdout.strip() else {}
 
 
+def ls(folder: str) -> list[dict]:
+    out = dk("ls", folder)
+    if not isinstance(out.get("files"), list):
+        sys.exit(f"drivekey ls {folder}: unexpected output (no 'files' list); is drivekey up to date?")
+    return out["files"]
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--folder", required=True, help="Drive folder id (the part after /folders/ in its link)")
@@ -61,7 +68,7 @@ def main() -> None:
     dk("get", args.sheet, "--export", "xlsx", "--out", str(xlsx), "--force")
     print(f"sheet: {xlsx}")
 
-    files = dk("ls", args.folder)["files"]
+    files = ls(args.folder)
 
     ws = tab(load_workbook(xlsx, read_only=True), "Profile")
     photo = key_values(ws).get("photo", "").strip("/") if ws else ""
@@ -69,7 +76,7 @@ def main() -> None:
         # "photo.jpg" or a path inside the folder such as "Website/photo.jpg".
         parent, found = args.folder, []
         for i, part in enumerate(photo.split("/")):
-            found = [f for f in (files if i == 0 else dk("ls", parent)["files"]) if f["name"] == part]
+            found = [f for f in (files if i == 0 else ls(parent)) if f["name"] == part]
             if len(found) != 1:
                 break
             parent = found[0]["id"]
