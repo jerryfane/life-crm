@@ -2,9 +2,10 @@
 
 ## Unreleased
 
-- Guide rewritten: 7 pages instead of 25. Cover with the prompt; what it is (with the framework
-  diagram); before you start; the 8 setup steps as You / Agent / Expect blocks; using it day to
-  day; privacy and questions. Notes are flat panels. The build fails if a chapter spills.
+- Guide rewritten (14 pages, one topic per page): what it is, the framework diagram and each
+  piece explained, the personal chat assistant with an example chat, before you start, one page
+  per setup step with examples (dictating with Wispr Flow, example goals, what "choose" means),
+  daily use, privacy. Notes are flat panels. The build fails if a chapter spills.
 
 ## v1.0.0 (2026-10-05)
 

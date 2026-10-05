@@ -53,7 +53,11 @@ def render(md: MarkdownIt, text: str) -> str:
         lead = re.match(r"\s*<p><strong>([^<]+?):?</strong>:?\s*", inner)
         if not lead:
             return f'<aside class="card">{inner}</aside>'
-        return f'<aside class="card"><span class="tag">{html.escape(lead.group(1).rstrip(":"))}</span><p>{inner[lead.end():]}</aside>'
+        label, rest = lead.group(1).rstrip(":"), inner[lead.end():]
+        # "> **You:** ..." / "> **Assistant:** ..." are a chat: message bubbles instead of notes.
+        if label in ("You", "Assistant"):
+            return f'<div class="bubble {"me" if label == "You" else "them"}"><p>{rest}</div>'
+        return f'<aside class="card"><span class="tag">{html.escape(label)}</span><p>{rest}</aside>'
 
     body = re.sub(r"<blockquote>(.*?)</blockquote>", card, body, flags=re.S)
     body = re.sub(r"<table>\s*<thead>\s*<tr>\s*<th></th>\s*<th></th>\s*</tr>\s*</thead>", '<table class="defs">', body)
@@ -115,6 +119,17 @@ table.defs td:first-child { width: 30%; color: var(--teal); white-space: normal;
 .line { display: grid; grid-template-columns: 17mm 1fr; gap: 2mm; margin: 0 0 .8mm; font-size: 8.3pt; line-height: 1.4; }
 .line .who { font-size: 6.6pt; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--teal); padding-top: .5mm; }
 .line:last-child { color: var(--muted); margin-bottom: 0; }
+
+/* Section headings on single-step pages; .page > .line lines sit directly on the page. */
+.page > h2 { font: 600 12pt/1.2 Georgia, serif; margin: 5mm 0 2mm; }
+.page > ul { margin: 0 0 3mm; padding-left: 4.5mm; } .page > ul li { margin-bottom: .8mm; }
+.page > .line { margin-bottom: 1.6mm; }
+
+/* Chat example: messages as bubbles, yours on the right. */
+.bubble { max-width: 80%; border-radius: 4mm; padding: 2.4mm 3.4mm; margin: 0 0 2mm; font-size: 8.6pt; line-height: 1.45; break-inside: avoid; }
+.bubble p { margin: 0; }
+.bubble.me { margin-left: auto; background: var(--teal); color: #fff; border-bottom-right-radius: 1mm; }
+.bubble.them { background: #f0efea; border-bottom-left-radius: 1mm; }
 
 /* Flat note: a soft tinted panel, no outline or side stripe. */
 .card { background: #eef4f2; border-radius: 2mm; padding: 2.8mm 3.6mm .6mm; margin: 0 0 3mm; font-size: 8.6pt; break-inside: avoid; }
