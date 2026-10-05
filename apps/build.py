@@ -30,7 +30,9 @@ from openpyxl import load_workbook
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 from lifecrm import cv, dashboard, site  # noqa: E402
-from lifecrm.sheet import tab  # noqa: E402
+from lifecrm.sheet import key_values, tab  # noqa: E402
+
+NO = {"no", "n", "false", "0"}
 
 PAGE = """<!doctype html>
 <html lang="en">
@@ -90,13 +92,19 @@ def main() -> int:
     warnings: list[str] = []
     built = []
 
-    cv_pdf = None
+    cv_pdf = public_cv = None
     if "cv" in parts:
-        cv_pdf = cv.build(wb, HERE / "cv" / "template.tex", args.out / "cv", warnings)
+        template = HERE / "cv" / "template.tex"
+        cv_pdf = cv.build(wb, template, args.out / "cv", warnings)
         built.append(f"cv: {cv_pdf or args.out / 'cv' / 'cv.tex'}")
+        profile = key_values(tab(wb, "Profile")) if tab(wb, "Profile") else {}
+        # The site offers a CV download; that copy never carries the phone number.
+        if "site" in parts and profile.get("cv_on_site", "yes").lower() not in NO:
+            public_cv = cv.build(wb, template, args.out / "cv", warnings, with_phone=False, stem="cv-public") \
+                if profile.get("phone") else cv_pdf
     if "site" in parts:
         if tab(wb, "Profile") and tab(wb, "Entries"):
-            site.build(wb, args.sheet.parent, args.out / "site", HERE / "site", cv_pdf, warnings)
+            site.build(wb, args.sheet.parent, args.out / "site", HERE / "site", public_cv, warnings)
             built.append(f"site: {args.out / 'site'}")
         else:
             built.append("site: skipped (no Profile + Entries tabs)")

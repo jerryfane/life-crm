@@ -29,7 +29,8 @@ phone too:
 ## Her public page and CV
 
 From the same spreadsheet: a one-page site with her education, rotations, research and
-certificates, and a CV as a PDF. Her phone number appears on the CV only, never on the page.
+certificates, and a CV as a PDF. Her phone number is only in her own copy of the CV, never on
+the page or in the CV visitors can download.
 
 ![Maya's public one-page site](../demo/img/career-site.webp)
 

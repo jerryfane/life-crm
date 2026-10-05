@@ -100,6 +100,8 @@ def render(profile: dict, sections: list, has_photo: bool, cv_href: str) -> str:
     body = "".join(f'\n    <section>\n      <h2>{e(title)}</h2>{"".join(_entry(x) for x in items)}\n    </section>' for title, items in sections)
     photo = f'<img class="photo" src="photo.jpg" alt="{e(name)}" width="160" height="160">' if has_photo else ""
     og = f'<meta property="og:url" content="{e(site_url)}/">\n<link rel="canonical" href="{e(site_url)}/">' if site_url else ""
+    if site_url and has_photo:
+        og += f'\n<meta property="og:image" content="{e(site_url)}/photo.jpg">'
     return f"""<!doctype html>
 <html lang="en">
 <head>

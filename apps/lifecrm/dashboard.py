@@ -3,10 +3,10 @@
 Tabs read:
   Timelines    one row per life area shown as a lane on the roadmap
   Steps        bars, milestones and tasks inside timelines
-  Settings     key/value: title, window_start, window_months, sheet_url
+  Settings     key/value: title, name, window_start, window_months, sheet_url
   Collections  one row per extra sidebar page (programs, papers, bills, lab results, ...)
   <tab>        one tab per collection, any columns
-  Profile      (optional) name, used for the sidebar brand
+  Profile      (optional) name, used for the sidebar brand when Settings has no name
 
 Problems in rows never stop the build: they become `warnings`, shown at the bottom of the
 dashboard so whoever edits the sheet can fix them.
@@ -192,7 +192,7 @@ def convert(wb) -> dict:
     ws = tab(wb, "Settings")
     settings = key_values(ws) if ws else {}
     profile_ws = tab(wb, "Profile")
-    name = (key_values(profile_ws) if profile_ws else {}).get("name", "")
+    name = settings.get("name") or (key_values(profile_ws) if profile_ws else {}).get("name", "")
     months = settings.get("window_months", "")
     window_start = parse_date(settings.get("window_start", ""))
     first = name.split()[0] if name else ""

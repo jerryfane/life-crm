@@ -80,7 +80,8 @@ In dashboard tabs, dates are `YYYY-MM-DD`, or a month like `May 2027` (shown as 
 
 | Key | Meaning |
 |---|---|
-| `title` | dashboard title (default: "Maya's year") |
+| `title` | dashboard title (default: "<first name>'s year") |
+| `name` | your name, for the sidebar (default: Profile `name`, if the sheet has a Profile tab) |
 | `window_start` | first month of the roadmap, e.g. `2026-10` (default: this month) |
 | `window_months` | how many months the roadmap shows, 1–36 (default 12) |
 | `sheet_url` | link to the Google Sheet; adds "Open the spreadsheet" links |
@@ -117,11 +118,12 @@ doing/applied/scheduled/pending are purple, rejected/overdue/missed/high are red
 |---|---|---|
 | `name`, `headline`, `location`, `email` | yes | yes |
 | `about` | yes | no |
-| `phone` | **never** | yes |
+| `phone` | **never** | only in `cv/cv.pdf`, your own copy; the CV offered on the site leaves it out |
 | `photo` | file name, e.g. `photo.jpg` (or `Website/photo.jpg` inside the Drive folder) | no |
 | `link: <Label>` | a link labelled `<Label>`, e.g. `link: LinkedIn` | the address |
 | `sections` | order of the Entries sections, comma-separated | same |
 | `site_url` | the site's address, for search engines and link previews | listed |
+| `cv_on_site` | `no` hides the "Download CV" link (default: shown when built with `--cv`) | |
 
 **Entries**: one row per line of your CV.
 

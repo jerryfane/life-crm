@@ -1,6 +1,7 @@
 """Spreadsheet (Profile + Entries) -> CV as LaTeX, compiled to PDF when latexmk is installed.
 
-Uses the same Profile and Entries as the public site, plus Profile `phone` (CV only, never on the site).
+Uses the same Profile and Entries as the public site, plus Profile `phone`. build.py makes two
+copies: cv.pdf with the phone (for the person) and cv-public.pdf without it (offered on the site).
 """
 from __future__ import annotations
 
@@ -39,10 +40,10 @@ def _entry(x: dict) -> str:
     return "\\noindent\\begin{minipage}{\\linewidth}\n" + "\n".join(parts) + "\n\\end{minipage}\\par"
 
 
-def render(wb, template: Path, warnings: list[str]) -> str:
+def render(wb, template: Path, warnings: list[str], with_phone: bool = True) -> str:
     p = read_profile(wb)
     sections = ordered_sections(p, read_entries(wb, warnings))
-    contact = [tex(p.get("phone", "")), tex(p.get("email", ""))]
+    contact = [tex(p.get("phone", "")) if with_phone else "", tex(p.get("email", ""))]
     for _, url in profile_links(p):
         contact.append(rf"\href{{{url}}}{{{tex(re.sub(r'^https?://(www\.)?', '', url).rstrip('/'))}}}")
     if p.get("site_url"):
@@ -55,16 +56,16 @@ def render(wb, template: Path, warnings: list[str]) -> str:
             .replace("<<SECTIONS>>", body))
 
 
-def build(wb, template: Path, out_dir: Path, warnings: list[str]) -> Path | None:
-    """Write out_dir/cv.tex and compile cv.pdf. Returns the PDF path, or None without LaTeX."""
+def build(wb, template: Path, out_dir: Path, warnings: list[str], with_phone: bool = True, stem: str = "cv") -> Path | None:
+    """Write out_dir/<stem>.tex and compile <stem>.pdf. Returns the PDF path, or None without LaTeX."""
     out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / "cv.tex").write_text(render(wb, template, warnings))
+    (out_dir / f"{stem}.tex").write_text(render(wb, template, warnings, with_phone))
     if not shutil.which("latexmk"):
-        warnings.append("CV: latexmk not installed; wrote cv.tex but no PDF")
+        warnings.append(f"CV: latexmk not installed; wrote {stem}.tex but no PDF")
         return None
-    run = subprocess.run(["latexmk", "-pdf", "-interaction=nonstopmode", "-halt-on-error", "-silent", "cv.tex"],
+    run = subprocess.run(["latexmk", "-pdf", "-interaction=nonstopmode", "-halt-on-error", "-silent", f"{stem}.tex"],
                          cwd=out_dir, capture_output=True, text=True)
     if run.returncode != 0:
-        warnings.append(f"CV: LaTeX failed; see {out_dir / 'cv.log'}")
+        warnings.append(f"CV: LaTeX failed; see {out_dir / (stem + '.log')}")
         return None
-    return out_dir / "cv.pdf"
+    return out_dir / f"{stem}.pdf"

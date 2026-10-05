@@ -31,7 +31,8 @@ ask for a payment card even for the free plan; your agent will tell you before, 
 
 ## Check the public page together
 
-Read it line by line with your agent. It never shows your phone number (only the CV does), but
+Read it line by line with your agent. Your phone number is never on it, not even in the CV you
+can download there (only your own copy of the CV has it), but
 anything written in your CV lines is public. Nothing about health, money, ID numbers or other
 people's private details belongs there.
 

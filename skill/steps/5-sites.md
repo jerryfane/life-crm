@@ -25,8 +25,9 @@ phone width. Check `work/build/warnings.txt` is empty. Then let them look (same 
 the paths; otherwise screenshots).
 
 Check the public page with them line by line: **no phone number, address, health, money or ID
-numbers**. The site never shows `phone` (only the CV does), but anything typed into Entries is
-public.
+numbers**. `phone` appears only in `work/build/cv/cv.pdf` (their own copy); the site and the CV
+it offers for download leave it out. Anything typed into Entries is public. Set Profile
+`cv_on_site` to `no` if they do not want a CV download on the page.
 
 ### 2. Decide the addresses
 
