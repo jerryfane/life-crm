@@ -26,8 +26,8 @@ summary::-webkit-details-marker { display: none; }
 /* Two columns: sticky profile and contents on the left, entries on the right. */
 .grid { max-width: 1344px; margin: 0 auto; padding: 0 48px; display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 64px; }
 .side { position: sticky; top: 0; align-self: start; max-height: 100vh; overflow: auto; padding: 40px 4px 24px; margin: 0 -4px; scrollbar-width: thin; }
-/* Square portrait spanning the sidebar's full width (a small square beside the name on phones). */
-.photo { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; border-radius: 8px; box-shadow: 0 0 0 1px var(--rule); }
+/* Square portrait, about two thirds of the sidebar width (a small square beside the name on phones). */
+.photo { display: block; width: 192px; height: auto; aspect-ratio: 1; object-fit: cover; border-radius: 8px; box-shadow: 0 0 0 1px var(--rule); }
 .me h1 { font: 600 32px/40px var(--serif); letter-spacing: -.01em; margin: 20px 0 0; }
 .me:not(.ph) h1 { margin-top: 0; }
 .head { margin: 4px 0 0; font-size: 16px; line-height: 24px; }
