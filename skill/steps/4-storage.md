@@ -53,7 +53,7 @@ drivekey mkdir "Certificates" --parent FOLDER_ID
    Collections, Settings.
 2. Fill in the confirmed facts from `work/interview.md` and `work/NOTES.md`. Unknown dates stay
    empty. Rows you are unsure should be visible get `show` = `no`.
-3. Build it locally first and fix every warning:
+3. Build it locally first and fix every warning (`--cv` only if they want a public page and CV):
    ```sh
    python3 skill/tools/sheetjson.py load work/sheet.json work/crm.xlsx
    python3 apps/build.py work/crm.xlsx --out work/build --cv
@@ -64,18 +64,25 @@ drivekey mkdir "Certificates" --parent FOLDER_ID
    drivekey put photo.jpg --parent WEBSITE_FOLDER_ID
    ```
    In Profile, set `photo` to the path inside the folder, e.g. `Website/photo.jpg`.
-5. Write `work/crm.json` (it holds no secrets; `apps/update.py` reads it in step 8):
+5. Point the dashboard back at the sheet (its "Open the spreadsheet" links):
+   ```sh
+   drivekey sheet set SHEET_ID --tab Settings --key-col key --key sheet_url --col value \
+     --value "https://docs.google.com/spreadsheets/d/SHEET_ID/edit"
+   ```
+   If Settings has no `sheet_url` row yet, add it first with
+   `drivekey sheet append SHEET_ID Settings --values '[["sheet_url", ""]]'`.
+6. Write `work/crm.json` (it holds no secrets; `apps/update.py` reads it in step 8). `"cv"` is
+   `true` only with a public page:
    ```json
    {"folder": "FOLDER_ID", "sheet": "SHEET_ID", "cv": true}
    ```
-6. Check the round trip: `python3 apps/pull.py --folder FOLDER_ID --sheet SHEET_ID --out data`
-   then build from `data/crm.xlsx`. It must give the same result as your local file.
+7. Check the round trip: `python3 apps/pull.py --folder FOLDER_ID --sheet SHEET_ID --out work/data`
+   then build from `work/data/crm.xlsx`. It must give the same result as your local file.
 
 ### 4. Walk them through it
 
 Send them the sheet link (`https://docs.google.com/spreadsheets/d/SHEET_ID`) and explain the tabs
-in one line each. Ask them to check every date and name. Set `sheet_url` in Settings to the link,
-so the dashboard links back to it.
+in one line each. Ask them to check every date and name.
 
 ### 5. Documents
 

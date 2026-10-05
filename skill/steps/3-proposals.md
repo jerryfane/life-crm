@@ -36,34 +36,50 @@ Ask with options, one question at a time or batched in one multiple-choice call.
 
 ### 3. Build 3-4 clickable options
 
-1. Dump the starting example: `python3 skill/tools/sheetjson.py dump examples/career/crm.xlsx > work/proposals/base.json`.
-2. Make 3-4 copies (`a.json`, `b.json`, ...) that differ in ways that **matter to the person**,
+1. Dump the closest example: `python3 skill/tools/sheetjson.py dump examples/career/crm.xlsx > work/proposals/base.json`
+   (or `finance`, `health`). For a project with no close example (a move, a wedding), start from
+   `career` and replace every lane and page.
+2. **Empty it first.** Delete every row of Steps and of each collection tab (keep the header
+   rows), and delete the tabs they do not need: Profile and Entries if they want no public page;
+   collection tabs and their Collections rows that do not fit. Nothing of Maya may remain.
+3. Make 3-4 copies (`a.json`, `b.json`, ...) that differ in ways that **matter to the person**,
    for example:
    - lanes grouped by area vs. one lane per goal;
    - a list as a table (compare many fields) vs. cards (fewer, richer items);
    - a 12-month roadmap vs. 6 months (more detail, less overview);
    - an update log page or not.
-   Change the tabs (Timelines, Steps, Settings, Collections and the collection tabs) to their
-   project: their timeline names, their pages, their column names.
-3. **Rows in prototypes.** Use the facts they already confirmed. Where you have none yet, write
+   Set their timeline names, pages and column names in Timelines, Settings, Collections and the
+   collection tabs. A short Python script that edits the JSON is fine; write it in `work/`.
+4. **Rows in prototypes.** Use the facts they already confirmed. Where you have none yet, write
    clearly fake sample rows: start every sample title with `Example:` and leave dates rough.
-   Never put Maya's facts in.
-4. Write `work/proposals/proposals.json`: a title, a one-line intro, and per option a short
-   label ("A · Grouped by area") and one sentence on what is different. Then build:
-   `python3 skill/tools/proposals.py work/proposals/proposals.json --out work/proposals/site`
-5. Check warnings it prints and fix them. Open the page yourself and click each option before
-   sending it.
+5. Write `work/proposals/proposals.json` (all paths relative to it):
+   ```json
+   {
+     "title": "Three ways to set up your dashboard",
+     "intro": "Same data, three layouts. Click around in each, then tell me which feels right.",
+     "options": [
+       {"label": "A · Grouped by area", "about": "Lanes sit under Money, Paperwork, Home.", "sheet": "a.json"},
+       {"label": "B · One lane per goal", "about": "Every goal is its own lane.", "sheet": "b.json"},
+       {"label": "C · Public page", "about": "Only if they want one.", "sheet": "a.json", "part": "site"}
+     ]
+   }
+   ```
+   Then build: `python3 skill/tools/proposals.py work/proposals/proposals.json --out work/proposals/site`.
+   The output holds only the built pages, never the spreadsheet.
+6. Fix every warning it prints. Open the page yourself and click each option before sending it.
 
 ### 4. Let them click
 
 - **Same computer:** tell them to open `work/proposals/site/index.html` (give the full path),
   or run `python3 -m http.server -d work/proposals/site 8000` and send http://localhost:8000.
-- **You run on another machine** (a server or a cloud agent): the prototypes must reach them
-  without exposing their data. Either build the options **with sample rows only** (no real
-  facts at all) and publish them for a few days:
+- **You run on another machine** (a server or a cloud agent) and cannot share a link: send
+  **screenshots** of each option, at laptop and phone width, with one line on what differs. This
+  needs no account and is the default.
+- Only if they want to click themselves and already have a Cloudflare account (or agree to make
+  one now, see step 5 part 3): build the options **with sample rows only** (no real facts at
+  all), publish them, and delete them once they have chosen:
   `wrangler deploy --assets work/proposals/site --name proposals-<name> --compatibility-date <today>`,
-  then delete it (`wrangler delete proposals-<name>`) once they have chosen; or send
-  screenshots. This needs their Cloudflare account (step 5), so ask first.
+  later `wrangler delete proposals-<name>`.
 
 Ask: **"Which one feels closest? What would you change?"** Offer the options plus "a mix".
 

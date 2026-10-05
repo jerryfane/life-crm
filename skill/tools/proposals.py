@@ -23,8 +23,10 @@ from __future__ import annotations
 import argparse
 import html
 import json
+import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -86,26 +88,31 @@ def main() -> None:
         sys.exit("proposals.json has no options")
 
     options = []
+    shutil.rmtree(args.out, ignore_errors=True)
     for n, o in enumerate(spec["options"], 1):
         part = o.get("part", "dashboard")
         if part not in ("dashboard", "site"):
             sys.exit(f"option {n}: part must be dashboard or site")
         sheet = base / o["sheet"]
-        work = args.out / f"option-{n}"
-        if sheet.suffix == ".json":
-            xlsx = work / "crm.xlsx"
-            load(json.loads(sheet.read_text()), xlsx)
-            # A photo named in Profile is looked for next to the spreadsheet.
-            for img in base.glob("*.jpg"):
-                (work / img.name).write_bytes(img.read_bytes())
-        else:
-            xlsx = sheet
-        run = subprocess.run([sys.executable, str(BUILD), str(xlsx), "--out", str(work), "--only", part],
-                             capture_output=True, text=True)
-        if run.returncode != 0:
-            sys.exit(f"option {n} ({o['label']}): build failed\n{run.stderr}")
-        if run.stderr.strip():
-            print(f"option {n} ({o['label']}):\n{run.stderr.strip()}", file=sys.stderr)
+        # Build in a scratch folder and keep only the built pages: the output may be published,
+        # and the spreadsheet itself must not be.
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            if sheet.suffix == ".json":
+                xlsx = work / "crm.xlsx"
+                load(json.loads(sheet.read_text()), xlsx)
+                # A photo named in Profile is looked for next to the spreadsheet.
+                for img in base.glob("*.jpg"):
+                    (work / img.name).write_bytes(img.read_bytes())
+            else:
+                xlsx = sheet
+            run = subprocess.run([sys.executable, str(BUILD), str(xlsx), "--out", str(work / "build"), "--only", part],
+                                 capture_output=True, text=True)
+            if run.returncode != 0:
+                sys.exit(f"option {n} ({o['label']}): build failed\n{run.stderr}")
+            if run.stderr.strip():
+                print(f"option {n} ({o['label']}):\n{run.stderr.strip()}", file=sys.stderr)
+            shutil.copytree(work / "build" / part, args.out / f"option-{n}" / part)
         options.append({"href": f"option-{n}/{part}/index.html", "about": o.get("about", "")})
 
     buttons = "".join(f'<button type="button">{html.escape(o["label"])}</button>' for o in spec["options"])

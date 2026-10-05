@@ -34,17 +34,22 @@ Ask with options. All of them need a computer that is on with drivekey and wrang
 
 ### Scheduled task
 
-macOS and Linux, every hour, with a log (`crontab -e`, one line):
+macOS and Linux, every hour, with a log (`crontab -e`). Scheduled tasks start with an almost
+empty environment, so give them the same `PATH` (and any variables such as
+`CLOUDFLARE_API_TOKEN` or `DRIVEKEY_GCLOUD`) your terminal uses. Run `echo $PATH` and paste it:
 
 ```
-0 * * * * cd /path/to/life-crm && /usr/bin/python3 apps/update.py work/crm.json >> work/update.log 2>&1
+PATH=<output of echo $PATH>
+0 * * * * cd /path/to/life-crm && python3 apps/update.py work/crm.json >> work/update.log 2>&1
 ```
 
 Windows: Task Scheduler → Create Basic Task → Daily → repeat every 1 hour → start
 `python` with arguments `apps\update.py work\crm.json` in the repository folder.
 
 Check the first two runs in the log. If drivekey says `not_logged_in` or wrangler says
-`Authentication error`, the login expired: log in again (steps 4 and 5).
+`Authentication error`, the login expired: log in again (steps 4 and 5). A run that ends with
+"does not ask for a login yet" means the dashboard's Access login is off: the locked page was
+published instead of the data, and the run is marked failed on purpose until the login is back.
 
 ## When they want changes
 

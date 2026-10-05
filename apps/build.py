@@ -93,17 +93,20 @@ def main() -> int:
     built = []
 
     cv_pdf = public_cv = None
-    if "cv" in parts:
+    has_cv_tabs = bool(tab(wb, "Profile") and tab(wb, "Entries"))
+    if "cv" in parts and not has_cv_tabs:
+        built.append("cv: skipped (no Profile + Entries tabs)")
+    elif "cv" in parts:
         template = HERE / "cv" / "template.tex"
         cv_pdf = cv.build(wb, template, args.out / "cv", warnings)
         built.append(f"cv: {cv_pdf or args.out / 'cv' / 'cv.tex'}")
-        profile = key_values(tab(wb, "Profile")) if tab(wb, "Profile") else {}
+        profile = key_values(tab(wb, "Profile"))
         # The site offers a CV download; that copy never carries the phone number.
         if "site" in parts and profile.get("cv_on_site", "yes").lower() not in NO:
             public_cv = cv.build(wb, template, args.out / "cv", warnings, with_phone=False, stem="cv-public") \
                 if profile.get("phone") else cv_pdf
     if "site" in parts:
-        if tab(wb, "Profile") and tab(wb, "Entries"):
+        if has_cv_tabs:
             site.build(wb, args.sheet.parent, args.out / "site", HERE / "site", public_cv, warnings)
             built.append(f"site: {args.out / 'site'}")
         else:

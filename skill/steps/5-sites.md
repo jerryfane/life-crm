@@ -6,7 +6,8 @@ if they want one, the public page with the CV.
 ## What they do
 
 - Create a free Cloudflare account (or use theirs) and log in once through a link you give them.
-- Turn on the login page for the dashboard: about 8 clicks, you guide them.
+- Turn on the login page for the dashboard: about 10 minutes the first time (Cloudflare asks for a
+  one-time "Zero Trust" setup first), you guide them.
 - Open both sites on their phone and say whether they look right.
 
 ## What you do
@@ -77,17 +78,24 @@ page with no data, prints the address, and stops. Now guide them, one step per m
 1. If Cloudflare Zero Trust is not set up yet: dashboard → **Zero Trust**, pick a team name and
    the **Free** plan. Cloudflare may ask for a payment card even for the free plan: tell them
    before, and let them decide.
-2. **Workers & Pages** → `maya-crm` → **Access** → **Protect this Worker behind Access**.
-3. Choose **All traffic**.
-4. Policy: allow **emails**: their own, plus anyone they chose in step 3.
-5. **Apply Access**.
+2. **Workers & Pages** → `maya-crm` → **Settings** → **Access** → **Protect this Worker behind
+   Access**. (Cloudflare moves buttons around; if it looks different, the current steps are at
+   https://developers.cloudflare.com/workers/configuration/cloudflare-access/.)
+3. Choose to protect production (all traffic), not only previews.
+4. Who may sign in: pick **Cloudflare account** (only people in their Cloudflare account, so
+   just them). **Never pick "Email domain" with a public provider such as `gmail.com`**: that
+   lets every Gmail user in.
+5. Apply.
+6. Only if someone else should see the dashboard (step 3 of the proposals): in **Zero Trust** →
+   **Access** → **Applications**, open the application Cloudflare just created for `maya-crm`,
+   edit its policy, and add an **Include** rule **Emails** with that person's address. Each
+   person logs in with a one-time code sent to their email.
 
 Then run it again with the address: `--dashboard maya-crm=maya-crm.<their-name>.workers.dev`
 (the address printed the first time) or `--dashboard maya-crm=crm.maya.example.com`. It checks
-the login is there and uploads the real
-dashboard. Verify: open the address in a private browser window. You must see a Cloudflare
-login page, not the dashboard. Then they log in with the code Cloudflare emails them and see
-their dashboard.
+the login is there and uploads the real dashboard. Verify: open the address in a private browser
+window. You must see a Cloudflare login page, not the dashboard. Then they log in and see their
+dashboard. If someone else was added, ask them to try too.
 
 Write both addresses in `work/crm.json` (`"site"`, `"dashboard"`) and in `work/NOTES.md`.
 

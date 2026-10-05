@@ -108,8 +108,8 @@ def main() -> None:
             wrangler_deploy(name, Path(tmp), address)
         again = "this command again" if address else \
             f"again with --dashboard {name}=ADDRESS, using the workers.dev address printed above"
-        sys.exit(f"Next: Cloudflare dashboard > Workers & Pages > {name} > Access > Protect this Worker behind Access\n"
-                 f"(All traffic; allow only your own email). Then run {again}.")
+        sys.exit(f"Next: Cloudflare dashboard > Workers & Pages > {name} > Settings > Access > Protect this Worker behind Access\n"
+                 f"(production traffic; who may sign in: 'Cloudflare account', never 'Email domain' gmail.com). Then run {again}.")
 
 
 if __name__ == "__main__":

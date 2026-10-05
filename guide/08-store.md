@@ -28,7 +28,7 @@ myaccount.google.com/permissions.
 | Profile, Entries | only with a public page: your details and CV lines |
 
 You can edit any cell yourself. Dates are written like `2027-05-14`, or just the month
-(`2027-05`) if you do not know the day. Set `show` to `no` to hide a row without deleting it.
+(`2027-05` or `May 2027`) if you do not know the day. Set `show` to `no` to hide a row without deleting it.
 
 > **For money:** typical subfolders are Statements, Taxes, Contracts, Receipts. Never store
 > passwords or full account numbers in the sheet.

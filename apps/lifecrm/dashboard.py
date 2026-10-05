@@ -159,9 +159,10 @@ def convert(wb) -> dict:
                 continue
             item = {"row": m, "title": title, "values": values}
             if status_f:
-                st = values.get(status_f, "").lower() or (statuses[0] if statuses else "")
+                raw_st = values.get(status_f, "")
+                st = raw_st.lower() or (statuses[0] if statuses else "")
                 if statuses and st not in statuses:
-                    warn(tab_name, m, f"'{title}': {status_f} '{st}' is not one of {', '.join(statuses)}; treated as {statuses[0]}")
+                    warn(tab_name, m, f"'{title}': {status_f} '{raw_st}' is not one of {', '.join(statuses)}; treated as {statuses[0]}")
                     st = statuses[0]
                 item["status"] = st
             if date_f:

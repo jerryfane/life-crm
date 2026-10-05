@@ -9,16 +9,16 @@ spreadsheet, shows them to you, and then puts them online on your own free Cloud
 > dashboard and checks that a stranger only sees a login page.
 
 > **You do:** create a free Cloudflare account (or use yours) and log in once. Turn on the
-> login for your dashboard, about 8 clicks with your agent guiding you. Then open both sites on
-> your phone.
+> login for your dashboard, about 10 minutes the first time, with your agent guiding you. Then
+> open both sites on your phone.
 
 ## The login
 
-Cloudflare calls it **Access**. You choose who may enter, by email address: you, and anyone you
-picked. To enter, you type your email and Cloudflare sends you a one-time code. No password to
-remember.
+Cloudflare calls it **Access**. At first only you can enter: you sign in with the email of your
+Cloudflare account and Cloudflare sends you a one-time code. No password to remember. If someone
+else should see the dashboard, your agent shows you where to add their email address.
 
-The first time, Cloudflare may ask you to set up "Zero Trust" and pick its **Free** plan. It may
+The first time, Cloudflare asks you to set up "Zero Trust" and pick its **Free** plan. It may
 ask for a payment card even for the free plan; your agent will tell you before, and you decide.
 
 ## Addresses

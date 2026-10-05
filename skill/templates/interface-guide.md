@@ -21,7 +21,7 @@ Never delete or rename files without asking <name>.
 
 Each tab has a header row. Never rename tabs or headers: the dashboard reads them by name.
 Every tab can have a `show` column: `no` hides a row from the sites without deleting it.
-Dates are `YYYY-MM-DD`. If only the month is known, write the month (`2027-05`). If unknown,
+Dates are `YYYY-MM-DD`. If only the month is known, write the month (`2027-05` or `May 2027`). If unknown,
 leave the cell empty.
 
 ### Timelines: the parts of the project

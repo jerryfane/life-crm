@@ -44,7 +44,7 @@ python3 apps/deploy.py build --site me-site=me.example.com --dashboard me-crm=cr
 
 Tab names and column headers are case-insensitive. Spaces in headers become `_`
 (`Apply by` = `apply_by`). Every tab with rows can have a `show` column: `no` hides a row.
-In dashboard tabs, dates are `YYYY-MM-DD`, or a month like `May 2027` (shown as approximate).
+In dashboard tabs, dates are `YYYY-MM-DD`, or only a month, `2027-05` or `May 2027` (shown as approximate).
 
 ### Dashboard tabs
 

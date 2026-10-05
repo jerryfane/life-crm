@@ -81,15 +81,17 @@ def main() -> None:
             # Missing, or several items with that name: picking one could publish the wrong picture.
             print(f"photo: '{part}' (from '{photo}') is in the folder {len(found)} times; expected once", file=sys.stderr)
 
+    # The spreadsheet itself is not a document: the dashboard links to it separately (Settings sheet_url).
+    docs = [f for f in files if f["id"] != args.sheet]
     documents = {
         "root_url": f"https://drive.google.com/drive/folders/{args.folder}",
         "items": sorted(({
             "name": f["name"], "url": f.get("webViewLink", ""),
             "kind": KINDS.get(f["mimeType"], "file"), "modified": f.get("modifiedTime", "")[:10],
-        } for f in files), key=lambda x: (x["kind"] != "folder", x["name"].lower())),
+        } for f in docs), key=lambda x: (x["kind"] != "folder", x["name"].lower())),
     }
     (args.out / "documents.json").write_text(json.dumps(documents, indent=1))
-    print(f"documents: {args.out / 'documents.json'} ({len(files)} files)")
+    print(f"documents: {args.out / 'documents.json'} ({len(docs)} files)")
 
 
 if __name__ == "__main__":

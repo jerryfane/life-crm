@@ -326,7 +326,9 @@
     if (!s.date) return null;
     const p = range.pct(addDays(iso(s.date), 0.5));
     if (p < 0 || p > 100) return null;
-    const x = (p / 100) * W;
+    // Keep the diamond (rotated, with its white ring) fully inside the lane for dates at the very
+    // start or end of the window.
+    const x = Math.min(Math.max((p / 100) * W, 16), W - 16);
     const tw = textW(s.title, 700) + 7 + 14;
     if (x + tw - 7 <= W) return { t, type: "ms", x, side: "right", tw, x0: x - 7, x1: x - 7 + tw };
     return { t, type: "ms", x, side: "left", tw, x0: x + 7 - tw, x1: x + 7 };
@@ -447,7 +449,9 @@
   function zoomTools() {
     const set = (z) => () => { zoom = z; weekShift = 0; store.set("lifecrm.zoom", z); render(); };
     const seg = h("span", { class: "seg", role: "group", "aria-label": "Zoom" },
-      h("button", { type: "button", class: zoom === "year" ? "on" : "", onclick: set("year") }, "Year"),
+      // The overview spans window_months (12 by default): call it "Year" only when it is one.
+      h("button", { type: "button", class: zoom === "year" ? "on" : "", onclick: set("year") },
+        (DATA.settings.window_months || 12) === 12 ? "Year" : `${DATA.settings.window_months} months`),
       h("button", { type: "button", class: zoom === "weeks" ? "on" : "", onclick: set("weeks") }, "13 weeks"));
     if (zoom !== "weeks") return [seg];
     const move = (n) => () => { weekShift += n; render(); };
@@ -514,15 +518,17 @@
       }), dot(), t.name)));
 
     const strip = zoom === "weeks"
-      ? [h("div", { class: "mini-h" }, h("span", {}, "The year · drag the frame"), h("span", {}, rangeLabel(YEAR))),
+      ? [h("div", { class: "mini-h" }, h("span", {}, "The whole roadmap · drag the frame"), h("span", {}, rangeLabel(YEAR))),
         yearStrip({ ctx: YEAR, rows: vis.map((t) => ({ t, dim: false })), frame: range })]
       : null;
 
     // lanes, grouped in timeline order
     const lanes = [];
     let group = null;
+    // No heading when every lane sits in one group (e.g. none set, so all are "Other").
+    const oneGroup = new Set(vis.map((t) => t.group)).size === 1;
     for (const t of vis) {
-      if (t.group !== group) { group = t.group; lanes.push({ type: "group", text: group }); }
+      if (t.group !== group) { group = t.group; if (!oneGroup) lanes.push({ type: "group", text: group }); }
       lanes.push({
         t, items: stepsOf(t.id),
         label: [dot(), h("span", { class: "rm-name" }, t.name, t.goal ? h("small", {}, t.goal) : null)],
