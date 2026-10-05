@@ -167,7 +167,7 @@ def render(profile: dict, sections: list, has_photo: bool, cv_href: str) -> str:
     body = "".join(f'\n    <section class="sec" id="{sid}"><h2>{e(title)}</h2><div class="es">'
                    + "".join(_entry(x, title.lower() in compact) for x in items) + "</div></section>"
                    for sid, (title, items) in zip(ids, sections))
-    photo = f'<img class="photo" src="photo.jpg" alt="{e(name)}" width="120" height="150">' if has_photo else ""
+    photo = f'<img class="photo" src="photo.jpg" alt="{e(name)}" width="640" height="640">' if has_photo else ""
     og = f'<meta property="og:url" content="{e(site_url)}/">\n<link rel="canonical" href="{e(site_url)}/">' if site_url else ""
     if site_url and has_photo:
         og += f'\n<meta property="og:image" content="{e(site_url)}/photo.jpg">'
@@ -240,8 +240,8 @@ def build(wb, sheet_dir: Path, out: Path, static: Path, cv_pdf: Path | None, war
         if src.is_file():
             with Image.open(src) as img:
                 img = ImageOps.exif_transpose(img).convert("RGB")
-                # A 4:5 portrait, as shown in the sidebar (also the link-preview image).
-                ImageOps.fit(img, (480, 600), centering=(0.5, 0.4)).save(out / "photo.jpg", "JPEG", quality=85, optimize=True, progressive=True)
+                # Square, upper part weighted: faces sit in the top half of most portraits.
+                ImageOps.fit(img, (640, 640), centering=(0.5, 0.35)).save(out / "photo.jpg", "JPEG", quality=85, optimize=True, progressive=True)
             has_photo = True
         else:
             warnings.append(f"Profile: photo '{profile['photo']}' not found next to the spreadsheet")
