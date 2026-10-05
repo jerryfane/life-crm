@@ -15,4 +15,4 @@
 | **Is my data used to train AI?** | That depends on the agent and assistant you use, not on life-crm. Check their settings. |
 | **Can I stop using it?** | Yes. The spreadsheet is yours and works on its own. |
 
-> **Get it:** github.com/jerryfane/life-crm. Free and open source.
+> **Get it:** [life-crm.jerryfane.com](https://life-crm.jerryfane.com) for the live demo and this guide; [github.com/jerryfane/life-crm](https://github.com/jerryfane/life-crm) for the code. Free and open source.

@@ -6,7 +6,11 @@
   prompt is the first message of a chat with your agent, Maya's dashboard on an iPhone is the
   answer), timeline, how the pieces fit, three live examples, steps, cost and privacy. On phones
   the chat and its Copy button fit the first screen down to 375×667.
-- Guide rewritten (14 pages, one topic per page): what it is, the framework diagram and each
+- Guide (15 pages): the chat assistant page explains what one is, and a new page compares real
+  options (Claude, Muse by Meta, Hermes Agent, OpenClaw, Grok Bot; checked October 2026) and the
+  ones to skip; skill step 6 carries the same list. Step 1 shows the full prompt to paste. The
+  site address life-crm.jerryfane.com is on the first and last pages.
+- Guide rewritten (one topic per page): what it is, the framework diagram and each
   piece explained, the personal chat assistant with an example chat, before you start, one page
   per setup step with examples (dictating with Wispr Flow, example goals, what "choose" means),
   daily use, privacy. Notes are flat panels. The build fails if a chapter spills.

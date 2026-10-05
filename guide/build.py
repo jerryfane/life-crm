@@ -13,7 +13,8 @@ Needs `markdown-it-py` (pip install markdown-it-py), Google Chrome or Chromium, 
 
 Markdown conventions: `> **Label:** text` becomes a flat tinted note tagged "Label"; a two-column
 table with an empty header row becomes a list of definitions; `## 3 Choose` followed by
-`**You:**`, `**Your agent:**`, `**Expect:**` paragraphs becomes a numbered step block.
+`**You:**`, `**Your agent:**`, `**Expect:**` paragraphs becomes a numbered step block; a paragraph
+that is only `{{prompt}}` becomes the paste block from the cover, with the full prompt.
 """
 from __future__ import annotations
 
@@ -35,6 +36,7 @@ PROMPT = ("I want a personal CRM for a project in my life. Download https://gith
           "(git clone, or the ZIP), read skill/SKILL.md, and follow it step by step with me. I am not a "
           "developer: ask me one thing at a time, show me options to choose from, and explain anything I "
           "need to click. Start with step 1.")
+PASTE = f'<figure class="paste"><span class="tag">Paste this into your agent</span><p>{html.escape(PROMPT)}</p></figure>'
 
 
 def chapters() -> list[Path]:
@@ -67,6 +69,7 @@ def render(md: MarkdownIt, text: str) -> str:
     body = re.sub(r"<h2>(\d+) ([^<]+)</h2>((?:(?!<h2>|<aside).)*)",
                   r'<div class="step"><span class="num">\1</span><div><h2>\2</h2>\3</div></div>', body, flags=re.S)
     body = re.sub(r'<p><img src="([^"]+)" alt="([^"]*)" ?/?></p>', r'<figure class="diagram"><img src="\1" alt="\2"></figure>', body)
+    body = body.replace("<p>{{prompt}}</p>", PASTE)
     return f'<section class="page"><h1>{html.escape(title)}</h1>{body}</section>'
 
 
@@ -82,7 +85,7 @@ def page(body: str) -> str:
   <h1>A personal CRM for any life project</h1>
   <p class="sub">Paste one prompt into your AI agent. It interviews you, then builds a private dashboard,
   a public page and a CV from one spreadsheet you own.</p>
-  <figure class="paste"><span class="tag">Paste this into your agent</span><p>{html.escape(PROMPT)}</p></figure>
+  {PASTE}
   <figure class="shot"><img src="../demo/img/career-roadmap.webp" alt=""></figure>
   <p class="foot">life-crm.jerryfane.com · github.com/jerryfane/life-crm</p>
 </section>
@@ -124,6 +127,10 @@ table.defs td:first-child { width: 30%; color: var(--teal); white-space: normal;
 .page > h2 { font: 600 12pt/1.2 Georgia, serif; margin: 5mm 0 2mm; }
 .page > ul { margin: 0 0 3mm; padding-left: 4.5mm; } .page > ul li { margin-bottom: .8mm; }
 .page > .line { margin-bottom: 1.6mm; }
+.page .paste { margin: 1mm 0 4mm; background: var(--teal-soft); border: 0; break-inside: avoid; }
+.page .paste .tag { color: var(--teal); }
+.page .paste p { color: var(--ink); }
+a { color: var(--teal); text-decoration: underline; text-decoration-thickness: .5pt; text-underline-offset: .6mm; }
 
 /* Chat example: messages as bubbles, yours on the right. */
 .bubble { width: fit-content; max-width: 80%; border-radius: 4mm; padding: 2.4mm 3.4mm; margin: 0 0 2mm; font-size: 8.6pt; line-height: 1.45; break-inside: avoid; }

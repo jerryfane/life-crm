@@ -13,4 +13,6 @@ You do not build it yourself. You paste one prompt into an AI agent, and it inte
 | **A public page and CV** | Optional. A one-page portfolio and a PDF CV made from the same sheet, so they never go out of date. |
 | **A chat assistant that keeps it current** | The AI you already chat with on your phone. "Today I sent the application" updates the sheet, and the websites follow. |
 
-> **Meet Maya:** This guide follows Maya, a medical student applying to residency. She is fictional: every name and date is made up. Her complete setup is live at life-crm.jerryfane.com, and your agent uses it as the starting point for yours.
+> **Meet Maya:** This guide follows Maya, a medical student applying to residency. She is fictional: every name and date is made up. Her complete setup is live online, and your agent uses it as the starting point for yours.
+
+> **See it live:** [life-crm.jerryfane.com](https://life-crm.jerryfane.com). Maya's dashboard, her public page, the prompt to copy and the latest version of this guide.

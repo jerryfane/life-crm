@@ -2,9 +2,9 @@
 
 ## 6 Assistant
 
-**You:** Connect your chat assistant to Google Drive (most have a Drive connector in their settings) and give it one instruction: "Before answering about my CRM, read GUIDE.md in my Maya CRM folder." Then send two test messages.
+**You:** Pick your chat assistant (page 6). Connect it to Google Drive and give it one instruction: "Before answering about my CRM, read GUIDE.md in my Maya CRM folder." Then send two test messages.
 
-**Your agent:** Writes that guide file, tailored to your sheet, and checks the results of your tests.
+**Your agent:** Checks what your assistant can do today, installs it if it is Hermes Agent or OpenClaw, writes the guide file for your sheet, and checks your tests.
 
 **Expect:** "What are my next three deadlines?" lists real dates. "I finished the assignment" marks it done.
 
