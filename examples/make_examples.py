@@ -172,7 +172,7 @@ def career():
         ["Bayside Family Medicine Program", "USA", "Tampa", "Family Medicine", "40%", "J-1", "Step 2 CK", "Within 3 years", "Sep 2027", "4", "shortlisted", "Same region as her emergency elective; family medicine like her California elective.", "Licensing exam", "", "yes"],
         ["Riverside Community Program", "USA", "Sacramento", "Family Medicine", "15%", "J-1", "Step 2 CK ≥ 230", "Within 3 years", "Sep 2027", "3", "shortlisted", "Dr. Chen's letter is relevant here.", "One more US letter", "", "yes"],
         ["Northgate Teaching Hospital", "UK", "Leeds", "Foundation Programme", "open", "Skilled worker", "PLAB 1 and 2", "", "Oct 2027", "3", "researching", "Open to international graduates who pass PLAB.", "UK registration", "", "yes"],
-        ["Ospedale San Marco", "Italy", "Turin", "Dermatology", "exam", "EU", "National exam", "", "Jul 2027", "2", "researching", "Entry by national exam ranking.", "Degree recognition", "", "yes"],
+        ["Hospital Costa Clara", "Spain", "Valencia", "Family Medicine", "exam", "EU", "MIR exam", "", "Jul 2027", "2", "researching", "Entry by national exam ranking.", "Degree recognition", "", "yes"],
         ["Metro Surgical Program", "USA", "Houston", "General Surgery", "2%", "H-1B", "Step 2 CK ≥ 250", "Within 1 year", "Sep 2027", "1", "rejected", "Very competitive; rarely takes international graduates.", "Research output, scores", "", "yes"],
     ])
     add(wb, "Papers", ["title", "type", "status", "effort", "supervisor", "owner", "summary", "link", "show"], [

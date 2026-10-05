@@ -1,0 +1,8 @@
+{
+  "name": "life-crm-demo",
+  "compatibility_date": "2026-10-05",
+  "assets": { "directory": "../build/demo", "not_found_handling": "404-page" },
+  "routes": [{ "pattern": "life-crm.jerryfane.com", "custom_domain": true }],
+  "workers_dev": false,
+  "preview_urls": false
+}
