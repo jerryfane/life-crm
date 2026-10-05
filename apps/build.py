@@ -21,11 +21,15 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import shutil
 import sys
+import zipfile
+from html import escape
 from pathlib import Path
 
 from openpyxl import load_workbook
+from openpyxl.utils.exceptions import InvalidFileException
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
@@ -58,12 +62,26 @@ def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()[:10]
 
 
+def previous_data(index: Path) -> dict | None:
+    """The data embedded in an earlier build's index.html, if there is one."""
+    try:
+        m = re.search(r'<script id="data" type="application/json">(.*?)</script>', index.read_text(), re.S)
+        return json.loads(m.group(1).replace("<\\/", "</")) if m else None
+    except (OSError, ValueError):
+        return None
+
+
 def build_dashboard(wb, out: Path, documents: dict | None, extra_warnings: list[str]) -> dict:
     """extra_warnings: site/CV problems, shown on the dashboard too so the person editing the sheet sees them."""
     data = dashboard.convert(wb)
     data["warnings"] += extra_warnings
     if documents:
         data["documents"] = documents
+    # synced_at says when the content last changed: keep the earlier time when nothing else did,
+    # so an unchanged sheet builds a byte-identical page (and a publisher can skip the upload).
+    before = previous_data(out / "index.html")
+    if before and {**before, "synced_at": data["synced_at"]} == data:
+        data["synced_at"] = before["synced_at"]
     static = HERE / "dashboard"
     shutil.rmtree(out, ignore_errors=True)
     out.mkdir(parents=True)
@@ -72,7 +90,6 @@ def build_dashboard(wb, out: Path, documents: dict | None, extra_warnings: list[
     (out / "favicon.svg").write_text(site.favicon(data["name"] or data["title"]))
     (out / "robots.txt").write_text("User-agent: *\nDisallow: /\n")
     payload = json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
-    from html import escape
     (out / "index.html").write_text(PAGE.format(title=escape(data["title"]), css=digest(static / "style.css"), js=digest(static / "app.js"), data=payload))
     return data
 
@@ -87,8 +104,15 @@ def main() -> int:
     args = ap.parse_args()
 
     parts = {p.strip() for p in args.only.split(",") if p.strip()} | ({"cv"} if args.cv else set())
-    wb = load_workbook(args.sheet, data_only=True)
-    documents = json.loads(args.documents.read_text()) if args.documents and args.documents.is_file() else None
+    try:
+        wb = load_workbook(args.sheet, data_only=True)
+    except (OSError, zipfile.BadZipFile, InvalidFileException) as e:
+        sys.exit(f"cannot read {args.sheet} as a spreadsheet (.xlsx): {e}")
+    documents = None
+    if args.documents:
+        if not args.documents.is_file():
+            sys.exit(f"--documents {args.documents}: no such file (run pull.py first, or leave the option out)")
+        documents = json.loads(args.documents.read_text())
     warnings: list[str] = []
     built = []
 
