@@ -5,3 +5,5 @@ build/
 __pycache__/
 *.pyc
 .wrangler/
+# Intermediate file of guide/build.py; the PDF is committed.
+guide/life-crm-guide.html

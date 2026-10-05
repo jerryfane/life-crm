@@ -17,7 +17,7 @@ need to click. Start with step 1.
 
 Your agent will interview you, show you clickable designs to choose from, and set everything up in your own Google Drive and (optionally) your own free Cloudflare account. You will log in twice and confirm your facts; the agent does the rest.
 
-> **Status:** the apps, the agent skill and the demo work. The illustrated guide (PDF) is being written.
+**Read first:** [the illustrated guide (PDF)](guide/life-crm-guide.pdf) explains every step in plain language: what you do, what your agent does, what it costs.
 
 ## How it works
 
@@ -44,6 +44,7 @@ Your agent will interview you, show you clickable designs to choose from, and se
 
 | Folder | What it is |
 |---|---|
+| [`guide/`](guide/) | The plain-language guide and its PDF |
 | [`skill/`](skill/) | What your agent follows: the conversation, step by step ([start here](skill/SKILL.md)) |
 | [`apps/`](apps/) | The code that turns your spreadsheet into the dashboard, the public page and the CV ([reference](apps/README.md)) |
 | [`examples/`](examples/) | Three ready spreadsheets: a career (a fictional medical student), money, and health |

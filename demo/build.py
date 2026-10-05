@@ -44,6 +44,7 @@ def main() -> None:
     build(EXAMPLES / "health" / "crm.xlsx", work / "health")
 
     shutil.copytree(ROOT / "demo" / "img", out / "img")
+    shutil.copy2(ROOT / "guide" / "life-crm-guide.pdf", out / "guide.pdf")
     shutil.copy2(ROOT / "demo" / "index.html", out / "index.html")
     shutil.copy2(ROOT / "demo" / "404.html", out / "404.html")
     shutil.copytree(work / "career" / "site", out / "demo" / "site")
