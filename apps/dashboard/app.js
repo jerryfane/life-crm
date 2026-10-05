@@ -748,7 +748,12 @@
     const table = h("div", { class: "card scroll" }, h("table", { class: "t" },
       h("thead", {}, h("tr", {}, cols.map((f) => h("th", {}, label(c, f))))),
       h("tbody", {}, list.map((i, k) => h("tr", { class: i === sel ? "sel" : "", tabindex: "0", onclick: pick(k), onkeydown: (ev) => ev.key === "Enter" && pick(k)() },
-        cols.map((f, j) => h("td", { class: j > 0 && (i.values[f] || "").length > 40 ? "wrap" : "" }, j === 0 ? h("b", {}, i.title) : cell(c, i, f))))))));
+        // Title column wraps (pinned on narrow screens); long values show two lines, full text on hover and in the detail card.
+        cols.map((f, j) => {
+          if (j === 0) return h("td", { class: "tt" }, h("b", { title: i.title }, i.title));
+          const v = i.values[f] || "";
+          return v.length > 40 ? h("td", { class: "wrap" }, h("span", { class: "clamp", title: v }, cell(c, i, f))) : h("td", {}, cell(c, i, f));
+        }))))));
     return h("div", { class: "stack" }, table, detailCard(c, sel));
   }
   function cardsPage(c, list) {

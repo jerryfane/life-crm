@@ -174,8 +174,17 @@ button.rm-lab { cursor: pointer; } button.rm-lab:hover .rm-name { text-decoratio
 .scroll { overflow-x: auto; }
 .t { width: 100%; border-collapse: collapse; font-size: 13.5px; }
 .t th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--faint); font-weight: 750; padding: 0 12px 10px 0; border-bottom: 1px solid var(--line); white-space: nowrap; }
-.t td { padding: 10px 12px 10px 0; border-bottom: 1px solid var(--line2); white-space: nowrap; }
-.t td.wrap { white-space: normal; min-width: 180px; color: var(--muted); }
+.t td { padding: 12px 16px 12px 0; border-bottom: 1px solid var(--line2); white-space: nowrap; vertical-align: top; line-height: 1.45; }
+.t td.tt { white-space: normal; min-width: 220px; max-width: 340px; }
+.t td.tt b { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-weight: 700; }
+.t td.wrap { white-space: normal; min-width: 200px; max-width: 280px; color: var(--muted); }
+.t .clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+/* On narrow screens the table scrolls sideways; keep the title column in view. */
+@media (max-width: 760px) {
+  .t td.tt, .t th:first-child { position: sticky; left: 0; z-index: 1; background: #fff; min-width: 168px; max-width: 200px; box-shadow: 8px 0 8px -8px rgba(0,0,0,.12); }
+  .t th:first-child { z-index: 2; }
+  .t tbody tr.sel td.tt { background: #f3f7f6; }
+}
 .t td.hot { color: var(--amber); font-weight: 700; }
 .t td a { color: #1f5f5b; font-weight: 650; text-decoration: none; }
 .t tbody tr[tabindex] { cursor: pointer; } .t tbody tr[tabindex]:hover td { background: #fafafa; } .t tbody tr.sel td { background: #f3f7f6; }
