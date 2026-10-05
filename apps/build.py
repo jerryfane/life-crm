@@ -140,6 +140,8 @@ def main() -> int:
             built.append(f"site: {args.out / 'site'}")
         else:
             built.append("site: skipped (no Profile + Entries tabs)")
+    # The CV (twice) and the site read the same Entries rows, so each reports the same problems.
+    warnings = list(dict.fromkeys(warnings))
     if "dashboard" in parts:
         data = build_dashboard(wb, args.out / "dashboard", documents, warnings)
         warnings = data["warnings"]
