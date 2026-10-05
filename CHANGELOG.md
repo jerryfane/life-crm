@@ -8,6 +8,9 @@
   prompt is the first message of a chat with your agent, Maya's dashboard on an iPhone is the
   answer), timeline, how the pieces fit, three live examples, steps, cost and privacy. On phones
   the chat and its Copy button fit the first screen down to 375×667.
+- Landing: new "Lanes" logo (sharp at 16 and 24 px). The hero chat plays out once (prompt,
+  question, answer, then the iPhone with the result), sections slide in as you reach them, and
+  the setup steps fill in as you scroll. All motion is off when the device asks for reduced motion.
 - Guide (15 pages): the chat assistant page explains what one is, and a new page compares real
   options (Claude, dots by OpenAI, Muse by Meta, Hermes Agent, OpenClaw, Grok Bot; checked October 2026) and the
   ones to skip; skill step 6 carries the same list. Step 1 shows the full prompt to paste. The
