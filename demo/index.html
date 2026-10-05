@@ -10,7 +10,8 @@
 <meta property="og:description" content="Describe your project to your AI agent. It asks simple questions, then builds a private dashboard from a Google Sheet you own.">
 <meta property="og:image" content="https://life-crm.jerryfane.com/img/shot-career-roadmap.webp">
 <link rel="canonical" href="https://life-crm.jerryfane.com/">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231d1d1f'/%3E%3Cpath d='M16 22h32M16 32h22M16 42h28' stroke='%23fff' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%231d1d1f'/%3E%3Crect x='3' y='4' width='6' height='2' rx='1' fill='%23fff'/%3E%3Crect x='6' y='7' width='7' height='2' rx='1' fill='%23ff7a1a'/%3E%3Crect x='4' y='10' width='5' height='2' rx='1' fill='%23fff'/%3E%3C/svg%3E">
+<script>if (matchMedia('(prefers-reduced-motion: no-preference)').matches && 'IntersectionObserver' in window) document.documentElement.classList.add('motion');</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -66,7 +67,7 @@ h2 { font-size: clamp(32px, 4.4vw, 56px); line-height: 1.07; font-weight: 700; l
   -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); }
 .nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 100%; max-width: var(--hero-w); }
 .logo { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 17px; font-weight: 600; letter-spacing: -.02em; text-decoration: none; }
-.logo svg { width: 22px; height: 22px; }
+.logo svg { width: 24px; height: 24px; }
 .nav nav { display: flex; gap: 8px; margin-right: -12px; }
 .nav nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; font-size: 14px; color: var(--m2); text-decoration: none; transition: color .2s; }
 .nav nav a:hover { color: var(--t); }
@@ -287,13 +288,61 @@ h1 span { display: block; }
   .msg.ai { font-size: 14px; }
   .chips { display: none; }
 }
+
+/* ── motion: only when the device has not asked for reduced motion (html.motion is set in <head>) ── */
+@keyframes mo-up { from { opacity: 0; transform: translateY(16px); } }
+@keyframes mo-in { from { opacity: 0; transform: translateY(8px); } }
+@keyframes mo-fade { from { opacity: 0; } }
+@keyframes mo-dots { 0% { opacity: 0; } 12%, 82% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes mo-bounce { 0%, 60%, 100% { transform: none; opacity: .35; } 30% { transform: translateY(-3px); opacity: 1; } }
+@keyframes mo-chip { from { opacity: 0; transform: scale(.88); } }
+@keyframes mo-pick { from { background: #fff; color: var(--t); box-shadow: inset 0 0 0 1px var(--line); } }
+@keyframes mo-slide { from { opacity: 0; transform: translateX(64px); } }
+@keyframes mo-arrow { from { opacity: 0; transform: translateX(-16px); } }
+
+/* hero: the chat plays out once, then the iPhone slides in with the result */
+.msg.ai { position: relative; }
+.typing { position: absolute; left: 40px; top: 8px; display: flex; gap: 4px; opacity: 0; pointer-events: none; }
+.typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--m); animation: mo-bounce 1s infinite; }
+.typing i:nth-child(2) { animation-delay: .15s; }
+.typing i:nth-child(3) { animation-delay: .3s; }
+.chat-b > .msg.ai:nth-child(2) { --d: .7s; }
+.chat-b > .msg.ai:nth-child(3) { --d: 2.3s; }
+.chips span:nth-child(2) { --c: 1; }
+.chips span:nth-child(3) { --c: 2; }
+.chips span:nth-child(4) { --c: 3; }
+.motion .chat .msg.me { animation: mo-up .6s cubic-bezier(.16, 1, .3, 1) .1s both; }
+.motion .chat .msg.ai { animation: mo-in .4s ease-out var(--d) both; }
+.motion .chat .msg.ai > :not(.ava):not(.typing) { animation: mo-fade .4s ease-out calc(var(--d) + .75s) both; }
+.motion .typing { animation: mo-dots .85s linear var(--d) both; }
+.motion .chips span { animation: mo-chip .4s cubic-bezier(.16, 1, .3, 1) calc(1.55s + var(--c, 0) * 70ms) both; }
+.motion .chips span.on { animation: mo-chip .4s cubic-bezier(.16, 1, .3, 1) 1.55s both, mo-pick .3s ease 2.05s both; }
+.motion .after .arrow { animation: mo-arrow .5s cubic-bezier(.16, 1, .3, 1) 3.15s both; }
+.motion .after .phc { animation: mo-slide 1s cubic-bezier(.16, 1, .3, 1) 3.25s both; }
+
+/* sections: slide into place as they come into view, once */
+.sec { overflow-x: clip; }
+.motion .rv { opacity: 0; transform: translate3d(0, 40px, 0);
+  transition: opacity .9s cubic-bezier(.16, 1, .3, 1) calc(var(--i, 0) * 90ms), transform 1s cubic-bezier(.16, 1, .3, 1) calc(var(--i, 0) * 90ms); }
+.motion .rv.rv-r { transform: translate3d(56px, 0, 0); }
+.motion .rv.in { opacity: 1; transform: none; }
+
+/* setup steps: the line fills and each step lights up as you scroll past it, both ways */
+.steps .fill { display: none; }
+.motion .steps .fill { display: block; position: absolute; left: 0; right: 0; top: 7px; height: 1px; background: var(--t); transform: scaleX(var(--p, 0)); transform-origin: 0 50%; }
+.motion .steps li::before { transition: background-color .25s; }
+.motion .steps li:first-child:not(.done)::before { background: #fff; }
+.motion .steps li.done::before { background: var(--t); }
+@media (max-width: 959px) {
+  .motion .steps .fill { left: 7px; right: auto; top: 8px; bottom: 8px; width: 1px; height: auto; transform: scaleY(var(--p, 0)); transform-origin: 50% 0; }
+}
 </style>
 </head>
 <body>
 
 <header class="nav">
   <div class="wrap">
-    <a class="logo" href="/" aria-label="life-crm home"><svg viewBox="0 0 22 22" aria-hidden="true"><rect width="22" height="22" rx="6" fill="#1d1d1f"/><path d="M6 7.5h10M6 11h7M6 14.5h9" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>life-crm</a>
+    <a class="logo" href="/" aria-label="life-crm home"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6" fill="#1d1d1f"/><rect x="5" y="7" width="8" height="2" rx="1" fill="#fff"/><rect x="9" y="11" width="10" height="2" rx="1" fill="#ff7a1a"/><rect x="7" y="15" width="7" height="2" rx="1" fill="#fff"/></svg>life-crm</a>
     <nav aria-label="Main">
       <a href="#how">How it works</a>
       <a href="#examples">Examples</a>
@@ -521,6 +570,58 @@ h1 span { display: block; }
       clearTimeout(btn._t); btn._t = setTimeout(() => { btn.textContent = label; btn.classList.remove('ok'); }, 2000);
     });
   });
+
+  /* ── motion (skipped when the device asks for reduced motion) ── */
+  const $$ = (s) => [...document.querySelectorAll(s)];
+  // The logo sits on whole screen pixels, so its bars stay sharp at any zoom.
+  const logos = $$('.logo svg');
+  const snap = () => logos.forEach((el) => {
+    el.style.transform = '';
+    const d = devicePixelRatio || 1, r = el.getBoundingClientRect();
+    const dx = Math.round(r.left * d) / d - r.left, dy = Math.round(r.top * d) / d - r.top;
+    if (Math.abs(dx) > .001 || Math.abs(dy) > .001) el.style.transform = `translate(${dx.toFixed(3)}px, ${dy.toFixed(3)}px)`;
+  });
+  snap(); addEventListener('resize', snap); document.fonts?.ready.then(snap);
+
+  if (!document.documentElement.classList.contains('motion')) return;
+  $$('.chat .msg.ai').forEach((m) => m.insertAdjacentHTML('beforeend', '<span class="typing" aria-hidden="true"><i></i><i></i><i></i></span>'));
+
+  const groups = [
+    '#timeline h2, #timeline .lead', '#timeline .shot',
+    '#pieces h2, #pieces .lead, #pieces dl > div', '#pieces figure',
+    '#examples h2, #examples .lead', '#examples .tile', '#examples .note',
+    '#how h2, #how .lead', '#how .total',
+    '#cost h2, #cost .lead', '#cost .card',
+    '#privacy h2, #privacy .lead', '#privacy .priv li',
+    '#start h2, #start .lead, #start .prompt, #start .links-row',
+  ];
+  const io = new IntersectionObserver((es) => es.forEach((e) => {
+    if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+  }), { rootMargin: '0px 0px -12% 0px' });
+  groups.forEach((sel) => $$(sel).forEach((el, i) => {
+    el.classList.add('rv'); if (el.matches('#pieces figure')) el.classList.add('rv-r');
+    el.style.setProperty('--i', i); io.observe(el);
+  }));
+
+  const steps = document.querySelector('#how .steps'), lis = $$('#how .steps li');
+  const fill = document.createElement('div');
+  fill.className = 'fill'; fill.setAttribute('aria-hidden', 'true');
+  steps.appendChild(fill);
+  let raf = 0;
+  const follow = () => {
+    raf = 0;
+    const vh = innerHeight, r = steps.getBoundingClientRect();
+    const down = matchMedia('(max-width: 959px)').matches;
+    const p = down ? (vh * .7 - r.top) / r.height : (vh * .85 - r.top) / (vh * .5);
+    const k = Math.max(0, Math.min(1, p));
+    steps.style.setProperty('--p', k.toFixed(4));
+    const end = k * (down ? r.height : r.width) + 1;
+    lis.forEach((li) => li.classList.toggle('done', (down ? li.offsetTop : li.offsetLeft) <= end));
+  };
+  const queue = () => { if (!raf) raf = requestAnimationFrame(follow); };
+  addEventListener('scroll', queue, { passive: true });
+  addEventListener('resize', queue);
+  follow();
 })();
 </script>
 </body>
