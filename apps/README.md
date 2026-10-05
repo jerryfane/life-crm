@@ -34,9 +34,11 @@ python3 apps/deploy.py build --site me-site=me.example.com --dashboard me-crm=cr
   dashboard's Documents page.
 - `build.py` never stops on a bad row. Problems are listed in `build/warnings.txt` and at the
   bottom of the dashboard, so whoever edits the sheet can fix them.
-- `deploy.py` publishes with Cloudflare `wrangler`. The dashboard gets no public `workers.dev`
-  address, only its own domain, and that domain must be behind Cloudflare Access (a login)
-  before it holds real data.
+- `deploy.py` publishes with Cloudflare `wrangler`, on your own domain or a free `workers.dev`
+  address. Before uploading the dashboard it checks that its address asks for a Cloudflare
+  Access login. If not, it uploads only a "locked" page with no data and tells you how to turn
+  the login on (Workers & Pages > your Worker > Access). Rerun it afterwards.
+- No Cloudflare? The dashboard also works offline: open `build/dashboard/index.html` in a browser.
 
 ## The spreadsheet
 

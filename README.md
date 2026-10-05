@@ -2,7 +2,22 @@
 
 Build your own personal CRM for any life project (your career, your money, your health, a move, a wedding) with the help of an AI agent. No coding needed: you talk, your agent builds.
 
-> **Status: under construction.** The guide, the agent skill and the demo are being written. Watch this repo or check back soon.
+**See it first:** [life-crm.jerryfane.com](https://life-crm.jerryfane.com) shows a complete setup for Maya, a fictional medical student, plus money and health examples.
+
+## Start: paste this into your agent
+
+Use an AI agent that can run commands on your computer (for example Claude Code or Codex). Paste:
+
+```text
+I want a personal CRM for a project in my life. Download https://github.com/jerryfane/life-crm
+(git clone, or the ZIP), read skill/SKILL.md, and follow it step by step with me. I am not a
+developer: ask me one thing at a time, show me options to choose from, and explain anything I
+need to click. Start with step 1.
+```
+
+Your agent will interview you, show you clickable designs to choose from, and set everything up in your own Google Drive and (optionally) your own free Cloudflare account. You will log in twice and confirm your facts; the agent does the rest.
+
+> **Status:** the apps, the agent skill and the demo work. The illustrated guide (PDF) is being written.
 
 ## How it works
 
@@ -29,8 +44,10 @@ Build your own personal CRM for any life project (your career, your money, your 
 
 | Folder | What it is |
 |---|---|
-| [`apps/`](apps/) | The code that turns your spreadsheet into the dashboard, the public site and the CV ([reference](apps/README.md)) |
+| [`skill/`](skill/) | What your agent follows: the conversation, step by step ([start here](skill/SKILL.md)) |
+| [`apps/`](apps/) | The code that turns your spreadsheet into the dashboard, the public page and the CV ([reference](apps/README.md)) |
 | [`examples/`](examples/) | Three ready spreadsheets: a career (a fictional medical student), money, and health |
+| [`demo/`](demo/) | The demo site at life-crm.jerryfane.com |
 
 ## License
 

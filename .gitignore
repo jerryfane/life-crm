@@ -1,5 +1,7 @@
-build/
+# Your own data: never commit these (the skill writes work/; the apps write data/ and build/).
+work/
 data/
+build/
 __pycache__/
 *.pyc
 .wrangler/
