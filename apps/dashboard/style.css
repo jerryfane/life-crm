@@ -189,6 +189,21 @@ button.rm-lab { cursor: pointer; } button.rm-lab:hover .rm-name { text-decoratio
 .t td a { color: #1f5f5b; font-weight: 650; text-decoration: none; }
 .t tbody tr[tabindex] { cursor: pointer; } .t tbody tr[tabindex]:hover td { background: #fafafa; } .t tbody tr.sel td { background: #f3f7f6; }
 .t tr:last-child td { border-bottom: 0; }
+/* Expandable rows: chevron in the title cell, details in a full-width row below. */
+.ttw { display: flex; gap: 8px; align-items: flex-start; }
+.chev { flex: none; width: 16px; height: 20px; position: relative; }
+.chev::before { content: ""; position: absolute; left: 3px; top: 6px; width: 6px; height: 6px; border-right: 2px solid var(--faint); border-bottom: 2px solid var(--faint);
+  transform: rotate(-45deg); transition: transform .22s cubic-bezier(.2, .7, .2, 1); }
+.t tr[aria-expanded="true"] .chev::before { transform: rotate(45deg); top: 4px; border-color: #1f5f5b; }
+.t tr.sel td { border-bottom-color: transparent; }
+.t tr.xp td { background: #f3f7f6; padding: 0 0 4px; white-space: normal; cursor: default; }
+.xp-in { position: sticky; left: 0; max-width: min(880px, calc(100vw - 72px)); padding: 4px 24px 16px; animation: xpIn .24s cubic-bezier(.2, .7, .2, 1); }
+.xp-h { display: flex; align-items: baseline; gap: 12px; font-size: 14px; }
+.xp-in .kv { grid-template-columns: 150px 1fr; }
+.xp-in .note { background: #fff; }
+@keyframes xpIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .xp-in { animation: none; } .chev::before { transition: none; } }
+@media (max-width: 760px) { .xp-in { padding: 4px 16px 14px; } .xp-in .kv { grid-template-columns: 110px 1fr; } }
 .tg { display: inline-flex; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; background: #f3f4f6; color: #4b5563; }
 .tg-ok { background: #e5f4ea; color: #15803d; } .tg-no { background: #fde8e8; color: #b91c1c; } .tg-ind { background: #ecebfd; color: #4f46e5; }
 .fit { display: inline-flex; gap: 3px; } .fit i { width: 8px; height: 8px; border-radius: 2px; background: #e4e2dc; } .fit i.on { background: #1f5f5b; }

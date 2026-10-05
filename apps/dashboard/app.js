@@ -732,29 +732,39 @@
     }
     return v;
   }
-  function detailCard(c, i) {
+  function detailBody(c, i) {
     const rows = Object.entries(i.values).filter(([f, v]) => v && f !== c.title_field && f !== "link");
     const short = rows.filter(([, v]) => v.length <= 60), long = rows.filter(([, v]) => v.length > 60);
-    return h("div", { class: "card" }, h("h3", {}, "Selected", ext(i.values.link)),
-      h("h4", { class: "dt" }, i.title),
+    return [
       short.length ? h("div", { class: "kv" }, short.map(([f]) => [h("span", {}, label(c, f)), h("span", {}, cell(c, i, f))])) : null,
-      long.map(([f, v]) => h("div", { class: "note" }, h("b", {}, label(c, f)), v)));
+      long.map(([f, v]) => h("div", { class: "note" }, h("b", {}, label(c, f)), v))];
   }
+  function detailCard(c, i) {
+    return h("div", { class: "card" }, h("h3", {}, "Selected", ext(i.values.link)), h("h4", { class: "dt" }, i.title), detailBody(c, i));
+  }
+  // Table rows expand in place: tap a row to show all its details right below it, tap again to close.
+  const openRow = {};
   function tablePage(c, list) {
-    const sel = list[Math.min(pageState[c.id] || 0, list.length - 1)];
     const cols = [c.title_field, ...c.fields.filter((f) => f !== c.title_field)];
     if (c.status_field && !cols.includes(c.status_field)) cols.push(c.status_field);
-    const pick = (k) => () => { pageState[c.id] = k; render(); };
-    const table = h("div", { class: "card scroll" }, h("table", { class: "t" },
-      h("thead", {}, h("tr", {}, cols.map((f) => h("th", {}, label(c, f))))),
-      h("tbody", {}, list.map((i, k) => h("tr", { class: i === sel ? "sel" : "", tabindex: "0", onclick: pick(k), onkeydown: (ev) => ev.key === "Enter" && pick(k)() },
-        // Title column wraps (pinned on narrow screens); long values show two lines, full text on hover and in the detail card.
+    const open = list.includes(openRow[c.id]) ? openRow[c.id] : null;
+    const toggle = (i) => () => { openRow[c.id] = open === i ? null : i; render(); };
+    const body = [];
+    for (const i of list) {
+      const on = i === open;
+      body.push(h("tr", { class: on ? "sel" : "", tabindex: "0", "aria-expanded": on ? "true" : "false", onclick: toggle(i),
+        onkeydown: (ev) => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); toggle(i)(); } } },
+        // Title column wraps (pinned on narrow screens); long values show two lines, full text when expanded.
         cols.map((f, j) => {
-          if (j === 0) return h("td", { class: "tt" }, h("b", { title: i.title }, i.title));
+          if (j === 0) return h("td", { class: "tt" }, h("div", { class: "ttw" }, h("span", { class: "chev", "aria-hidden": "true" }), h("b", { title: i.title }, i.title)));
           const v = i.values[f] || "";
           return v.length > 40 ? h("td", { class: "wrap" }, h("span", { class: "clamp", title: v }, cell(c, i, f))) : h("td", {}, cell(c, i, f));
-        }))))));
-    return h("div", { class: "stack" }, table, detailCard(c, sel));
+        })));
+      if (on) body.push(h("tr", { class: "xp" }, h("td", { colspan: String(cols.length) },
+        h("div", { class: "xp-in" }, h("div", { class: "xp-h" }, h("b", {}, i.title), ext(i.values.link)), detailBody(c, i)))));
+    }
+    return h("div", { class: "card scroll" }, h("table", { class: "t" },
+      h("thead", {}, h("tr", {}, cols.map((f) => h("th", {}, label(c, f))))), h("tbody", {}, body)));
   }
   function cardsPage(c, list) {
     const sel = list[Math.min(pageState[c.id] || 0, list.length - 1)];
