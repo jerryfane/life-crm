@@ -2,8 +2,9 @@
 
 ## Unreleased
 
-- Guide cut from 25 pages to 4: a cover with the prompt, then one page each for what you get,
-  the 8 steps, and privacy/costs. The build fails if a chapter spills past one page.
+- Guide rewritten: 7 pages instead of 25. Cover with the prompt; what it is (with the framework
+  diagram); before you start; the 8 setup steps as You / Agent / Expect blocks; using it day to
+  day; privacy and questions. Notes are flat panels. The build fails if a chapter spills.
 
 ## v1.0.0 (2026-10-05)
 

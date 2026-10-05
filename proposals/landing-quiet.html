@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light only">
+<title>life-crm · a personal CRM for your life</title>
+<meta name="description" content="Paste one prompt into your AI agent. It interviews you, then builds a private dashboard from a Google Sheet you own.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231d1d1f'/%3E%3Cpath d='M16 22h32M16 32h22M16 42h28' stroke='%23fff' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* ── tokens ─────────────────────────────────────────────
+   spacing: 8 · 16 · 24 · 32 · 48 · 64 · 96 · 128 (4 for hairline nudges)
+   radii:   12 images/frames · 20 prompt · 28 cards · pill buttons
+*/
+:root {
+  --t: #1d1d1f; --m: #6e6e73; --m2: #424245; --alt: #f5f5f7; --hair: #e8e8ed; --line: #d2d2d7;
+  --blue: #0071e3; --blue-h: #0077ed; --link: #0066cc; --accent: #bf4800;
+  --r-img: 12px; --r-box: 20px; --r-card: 28px;
+  --sh-frame: 0 1px 2px rgba(0, 0, 0, .04), 0 24px 48px -24px rgba(0, 0, 0, .24);
+  --sh-phone: drop-shadow(0 24px 32px rgba(0, 0, 0, .18));
+  --pad-x: clamp(20px, 4vw, 48px);
+  --nav-h: 52px;
+  --sans: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--nav-h) + 16px); }
+body { margin: 0; background: #fff; color: var(--t); font: 400 17px/1.5 var(--sans); letter-spacing: -.011em; font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+img { display: block; max-width: 100%; height: auto; }
+h1, h2, h3, p, ol, ul, dl, dd, figure { margin: 0; }
+ol, ul { padding: 0; list-style: none; }
+h1, h2, h3 { text-wrap: balance; }
+p, li, dd { text-wrap: pretty; }
+a { color: inherit; }
+button { font: inherit; letter-spacing: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 6px; }
+.btn:focus-visible, .copy:focus-visible { border-radius: 999px; }
+
+.wrap { max-width: 1104px; margin: 0 auto; padding: 0 var(--pad-x); }
+.sec { padding: 128px 0; }
+.sec.alt { background: var(--alt); }
+.center { text-align: center; }
+h2 { font-size: clamp(32px, 4.4vw, 56px); line-height: 1.07; font-weight: 700; letter-spacing: -.04em; }
+.lead { margin-top: 16px; max-width: 32em; font-size: clamp(19px, 1.7vw, 21px); line-height: 1.43; color: var(--m); letter-spacing: -.017em; text-wrap: balance; }
+.center .lead { margin-left: auto; margin-right: auto; }
+.nw { white-space: nowrap; }
+.more { color: var(--link); text-decoration: none; white-space: nowrap; }
+.more::after { content: "\00a0›"; }
+.more:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* buttons: one height everywhere */
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 22px; border-radius: 999px; border: 0;
+  background: var(--blue); color: #fff; font-size: 17px; font-weight: 500; text-decoration: none; white-space: nowrap; transition: background-color .2s; }
+.btn:hover { background: var(--blue-h); }
+
+/* ── nav ── */
+.nav { position: sticky; top: 0; z-index: 10; height: var(--nav-h); background: rgba(255, 255, 255, .8); border-bottom: 1px solid var(--hair);
+  -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); }
+.nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 100%; max-width: 1440px; }
+.logo { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 17px; font-weight: 600; letter-spacing: -.02em; text-decoration: none; }
+.logo svg { width: 22px; height: 22px; }
+.nav nav { display: flex; gap: 8px; margin-right: -12px; }
+.nav nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; font-size: 14px; color: var(--m2); text-decoration: none; transition: color .2s; }
+.nav nav a:hover { color: var(--t); }
+
+/* ── prompt box ── */
+.prompt { border-radius: var(--r-box); background: var(--alt); padding: 20px 24px 16px; text-align: left; }
+.prompt p { font: 400 14px/1.6 var(--mono); letter-spacing: 0; color: var(--t); overflow-wrap: break-word; }
+.prompt-f { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+.prompt-f span { font-size: 14px; color: var(--m); }
+.copy { position: relative; flex: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 104px; height: 36px; padding: 0 16px;
+  border: 0; border-radius: 999px; background: var(--t); color: #fff; font-size: 15px; font-weight: 500; transition: background-color .2s; }
+.copy::before { content: ""; position: absolute; inset: -4px; }
+.copy svg { width: 15px; height: 15px; }
+.copy:hover { background: #000; }
+.copy.ok { background: #1a7f37; }
+.sec.alt .prompt { background: #fff; }
+
+/* ── iPhone 15 mockup: screenshot under the frame, 6 px (of 1419) bigger than the screen hole on every side ── */
+.iph { position: relative; aspect-ratio: 1419 / 2796; }
+.iph-s { position: absolute; left: 8.0338%; top: 4.1130%; width: 83.932%; height: 91.810%; max-width: none; object-fit: cover; object-position: center top;
+  border-radius: 14.526% / 6.739%; background: #fff; }
+.iph-f { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; pointer-events: none; }
+
+/* ── hero: fits the first screen ── */
+.hero { --py: clamp(24px, 5svh, 64px); --cap: 36px; display: flex; align-items: center; min-height: calc(100svh - var(--nav-h)); padding: var(--py) 0; }
+.hero .wrap { display: grid; grid-template-columns: minmax(0, clamp(30rem, 40vw, 35rem)) minmax(0, 1fr); gap: clamp(40px, 5vw, 72px); align-items: center; width: 100%; max-width: 1440px; }
+.eyebrow { font-size: 17px; font-weight: 600; color: var(--accent); letter-spacing: -.01em; }
+h1 { margin-top: 8px; font-size: clamp(40px, min(4.4vw, 8svh), 64px); line-height: 1.04; font-weight: 700; letter-spacing: -.045em; }
+.sub { margin-top: 16px; font-size: clamp(17px, min(1.5vw, 2.6svh), 21px); line-height: 1.43; color: var(--m); letter-spacing: -.017em; max-width: 30em; text-wrap: balance; }
+.hero .prompt { margin-top: clamp(24px, 3.4svh, 32px); }
+.cta { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 32px; margin-top: 24px; }
+.cta .more { display: inline-flex; align-items: center; min-height: 44px; font-size: 17px; }
+@media (max-width: 640px) and (max-height: 700px) { .eyebrow { display: none; } }
+
+.stage { container-type: inline-size; }
+.phones { --g: 20px; --c: min(calc((100cqw - 2 * var(--g)) / 2.6), calc((100svh - var(--nav-h) - 2 * var(--py) - var(--cap)) / 1.9704), 320px);
+  display: flex; justify-content: center; align-items: center; gap: var(--g); }
+.phones .iph { flex: none; width: calc(var(--c) * .8); filter: var(--sh-phone); }
+.phones .iph.main { width: var(--c); }
+.cap { margin-top: 16px; text-align: center; font-size: 13px; line-height: 20px; color: var(--m); }
+
+/* ── browser frame ── */
+.bw { overflow: hidden; border-radius: var(--r-img); background: #fff; border: 1px solid var(--hair); box-shadow: var(--sh-frame); }
+.bw-bar { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; background: #f3f3f5; border-bottom: 1px solid var(--hair); }
+.bw-bar i { flex: none; width: 12px; height: 12px; border-radius: 50%; background: #ff5f57; }
+.bw-bar i:nth-child(2) { background: #febc2e; }
+.bw-bar i:nth-child(3) { background: #28c840; }
+.bw-u { flex: 1; min-width: 0; display: flex; justify-content: center; margin-right: 52px; }
+.bw-u span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 4px 16px; border-radius: 8px; background: #fff; color: var(--m); font-size: 12px; line-height: 16px; }
+.zoom { position: relative; overflow: hidden; aspect-ratio: var(--ar, 16 / 10); }
+.zoom img { position: absolute; left: 0; top: 0; max-width: none; width: calc(var(--z, 1) * 100%); transform: translate(calc(var(--fx, 0) * -100%), calc(var(--fy, 0) * -100%)); }
+.shot { max-width: 1104px; margin: 64px auto 0; padding: 0 var(--pad-x); }
+
+/* ── how the pieces fit ── */
+.pieces { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 96px; align-items: start; }
+.pieces-t { position: sticky; top: calc(var(--nav-h) + 48px); }
+.pieces dl { margin-top: 48px; border-top: 1px solid var(--hair); }
+.pieces dl div { padding: 16px 0; border-bottom: 1px solid var(--hair); }
+.pieces dt { font-size: 17px; font-weight: 600; letter-spacing: -.02em; }
+.pieces dd { margin-top: 4px; font-size: 15px; line-height: 1.47; color: var(--m); max-width: 34em; }
+.pieces dt small { margin-left: 8px; font-size: 12px; font-weight: 500; color: var(--m); letter-spacing: 0; }
+.diagram { display: block; overflow: hidden; border-radius: var(--r-img); box-shadow: var(--sh-frame); }
+.diagram img { width: 100%; }
+.pieces figcaption { margin-top: 16px; text-align: center; font-size: 13px; line-height: 20px; color: var(--m); }
+
+/* ── examples ── */
+.tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin-top: 64px; text-align: left; }
+.tile { display: flex; flex-direction: column; overflow: hidden; border-radius: var(--r-card); background: #fff; }
+.tile-b { padding: 32px 32px 32px; }
+.k { font-size: 14px; font-weight: 600; color: var(--accent); }
+.tile h3 { margin-top: 8px; font-size: 24px; line-height: 1.17; font-weight: 700; letter-spacing: -.035em; }
+.tile p { margin-top: 8px; font-size: 16px; line-height: 1.5; color: var(--m); }
+.tile .links { display: flex; flex-wrap: wrap; gap: 0 24px; margin-top: 8px; }
+.tile .links a { display: inline-flex; align-items: center; min-height: 44px; font-size: 16px; }
+.tile-img { margin: auto 0 0 32px; aspect-ratio: 5 / 4; overflow: hidden; border-radius: var(--r-img) 0 0 0; box-shadow: 0 0 0 1px var(--hair), 0 8px 24px -8px rgba(0, 0, 0, .14); }
+.tile-img img { width: 190%; max-width: none; }
+.note { max-width: 40em; margin: 32px auto 0; font-size: 14px; line-height: 1.5; color: var(--m); }
+
+/* ── steps ── */
+.steps { position: relative; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 24px; margin-top: 64px; text-align: left; }
+.steps::before { content: ""; position: absolute; left: 0; right: 0; top: 7px; height: 1px; background: var(--line); }
+.steps li { position: relative; padding-top: 40px; }
+.steps li::before { content: ""; position: absolute; left: 0; top: 0; width: 15px; height: 15px; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 1.5px var(--t); }
+.steps li:first-child::before { background: var(--t); }
+.steps .t { font-size: 14px; color: var(--m); }
+.steps h3 { margin-top: 4px; font-size: 21px; line-height: 1.24; font-weight: 700; letter-spacing: -.03em; }
+.steps p { margin-top: 8px; font-size: 15px; line-height: 1.47; color: var(--m); }
+.total { margin-top: 64px; font-size: 17px; color: var(--m); }
+.total b { color: var(--t); font-weight: 600; }
+
+/* ── cost ── */
+.two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-top: 64px; text-align: left; }
+.card { padding: 40px; border-radius: var(--r-card); background: #fff; }
+.card h3 { font-size: 24px; line-height: 1.17; font-weight: 700; letter-spacing: -.035em; }
+.card ul { margin-top: 24px; }
+.card li { display: flex; justify-content: space-between; align-items: baseline; gap: 24px; padding: 16px 0; border-top: 1px solid var(--hair); font-size: 16px; line-height: 1.5; }
+.card li b { font-weight: 600; }
+.card li span { color: var(--m); text-align: right; }
+.card li.stack { display: block; }
+.card li.stack span { display: block; margin-top: 4px; text-align: left; font-size: 15px; }
+.card .fine { margin-top: 16px; font-size: 14px; color: var(--m); }
+
+/* ── privacy ── */
+.priv { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 48px 40px; margin-top: 64px; text-align: left; }
+.priv svg { width: 32px; height: 32px; color: var(--t); }
+.priv b { display: block; margin-top: 16px; font-size: 19px; line-height: 1.26; font-weight: 700; letter-spacing: -.025em; }
+.priv span { display: block; margin-top: 8px; font-size: 15px; line-height: 1.47; color: var(--m); }
+
+/* ── final ── */
+.final .prompt { max-width: 720px; margin: 48px auto 0; }
+.links-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 0 40px; margin-top: 32px; }
+.links-row a { display: inline-flex; align-items: center; min-height: 44px; font-size: 17px; }
+
+/* ── footer ── */
+.foot { background: var(--alt); border-top: 1px solid var(--hair); font-size: 12px; line-height: 1.5; color: var(--m); }
+.foot .wrap { padding-top: 16px; padding-bottom: 32px; }
+.foot nav { display: flex; flex-wrap: wrap; gap: 0 32px; border-bottom: 1px solid var(--line); }
+.foot nav a { display: inline-flex; align-items: center; min-height: 44px; color: var(--m2); text-decoration: none; }
+.foot nav a:hover { color: var(--t); text-decoration: underline; text-underline-offset: 3px; }
+.foot p { margin-top: 16px; max-width: 70ch; }
+.foot p + p { margin-top: 8px; }
+
+/* ── short desktop screens: keep the whole hero in view ── */
+@media (min-width: 960px) and (max-height: 760px) {
+  .eyebrow { display: none; }
+  h1 { margin-top: 0; }
+}
+
+/* ── tablet ── */
+@media (max-width: 959px) {
+  .hero { display: block; min-height: 0; padding: 48px 0 0; }
+  .hero .wrap { grid-template-columns: minmax(0, 1fr); gap: 48px; max-width: 640px; text-align: center; }
+  h1 { font-size: clamp(32px, 8.4vw, 64px); }
+  .sub { margin-left: auto; margin-right: auto; }
+  .cta { justify-content: center; }
+  .phones { --c: min(calc((100cqw - 2 * var(--g)) / 2.6), 280px); }
+  .pieces { grid-template-columns: minmax(0, 1fr); gap: 48px; }
+  .pieces-t { position: static; }
+  .pieces figure { max-width: 560px; margin: 0 auto; width: 100%; }
+  .tiles { grid-template-columns: minmax(0, 1fr); max-width: 560px; margin-left: auto; margin-right: auto; }
+  .steps { grid-template-columns: minmax(0, 1fr); max-width: 560px; margin-left: auto; margin-right: auto; gap: 32px; }
+  .steps::before { left: 7px; right: auto; top: 8px; bottom: 8px; width: 1px; height: auto; }
+  .steps li { padding: 0 0 0 40px; }
+  .two { grid-template-columns: minmax(0, 1fr); max-width: 560px; margin-left: auto; margin-right: auto; }
+  .priv { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ── phone ── */
+@media (max-width: 640px) {
+  :root { --nav-h: 48px; }
+  .sec { padding: 80px 0; }
+  .nav nav a:not(:last-child) { display: none; }
+  .hero { padding-top: clamp(16px, 3.6svh, 32px); }
+  .hero .wrap { gap: clamp(24px, 4svh, 40px); text-align: left; }
+  .eyebrow { font-size: 15px; }
+  h1 { margin-top: 4px; font-size: clamp(30px, 8.6vw, 40px); line-height: 1.06; letter-spacing: -.04em; }
+  .sub { margin-top: 12px; font-size: 16px; line-height: 1.45; }
+  .hero .prompt { margin-top: 20px; }
+  .prompt { padding: 16px 16px 12px; border-radius: 18px; }
+  .prompt p { font-size: 13px; line-height: 1.55; }
+  .prompt-f { margin-top: 12px; padding-top: 12px; gap: 12px; }
+  .prompt-f span { font-size: 13px; line-height: 1.3; }
+  .copy { height: 44px; min-width: 88px; }
+  .copy::before { display: none; }
+  .cta { justify-content: flex-start; gap: 8px 20px; margin-top: 16px; }
+  .cta .btn { padding: 0 20px; }
+  .phones .iph:not(.main) { display: none; }
+  .phones { --c: min(76vw, 300px); }
+  .cap { margin-top: 24px; }
+  .lead { font-size: 19px; }
+  .shot { margin-top: 40px; }
+  .shot .zoom { --z: 2.2; --fx: .21; --ar: 1; }
+  .pieces dl { margin-top: 32px; }
+  .tiles, .two, .priv, .steps { margin-top: 40px; }
+  .tiles { gap: 16px; }
+  .tile-b { padding: 24px 24px 24px; }
+  .tile-img { margin-left: 24px; }
+  .total { margin-top: 40px; }
+  .card { padding: 32px 24px; border-radius: 24px; }
+  .card li { gap: 16px; }
+  .priv { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+  .priv li { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 0 16px; }
+  .priv b { margin-top: 4px; }
+  .priv span { grid-column: 2; }
+  .priv svg { grid-row: span 2; }
+  .final .prompt { margin-top: 40px; }
+  .links-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 16px; max-width: 360px; margin-left: auto; margin-right: auto; text-align: left; }
+  .foot nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 16px; }
+}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="logo" href="https://life-crm.jerryfane.com/" aria-label="life-crm home"><svg viewBox="0 0 22 22" aria-hidden="true"><rect width="22" height="22" rx="6" fill="#1d1d1f"/><path d="M6 7.5h10M6 11h7M6 14.5h9" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>life-crm</a>
+    <nav aria-label="Main">
+      <a href="#how">How it works</a>
+      <a href="#examples">Examples</a>
+      <a href="#cost">Cost</a>
+      <a href="#privacy">Privacy</a>
+      <a href="https://github.com/jerryfane/life-crm">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow">A personal CRM for your life</p>
+        <h1>One sheet.<br>Your whole project.</h1>
+        <p class="sub">Paste one prompt into your AI agent. It interviews you, then builds a private dashboard from a Google Sheet you own.</p>
+        <div class="prompt" data-prompt-box>
+          <p data-prompt>I want a personal CRM for a project in my life. Download https://github.com/jerryfane/life-crm (git clone, or the ZIP), read skill/SKILL.md, and follow it step by step with me. I am not a developer: ask me one thing at a time, show me options to choose from, and explain anything I need to click. Start with step 1.</p>
+          <div class="prompt-f"><span>Paste into Claude Code or Codex</span><button class="copy" type="button" data-copy>Copy</button></div>
+        </div>
+        <div class="cta">
+          <a class="btn" href="https://life-crm.jerryfane.com/demo/dashboard/">See the live demo</a>
+          <a class="more" href="https://life-crm.jerryfane.com/guide.pdf">Read the guide</a>
+        </div>
+      </div>
+      <div class="stage">
+        <div class="phones">
+          <div class="iph"><img class="iph-s" src="img/phone-finance.webp" width="1179" height="2556" alt="A money dashboard on a phone: car loan, budget, savings and taxes"><img class="iph-f" src="img/iphone-15-black.png" width="1419" height="2796" alt=""></div>
+          <div class="iph main"><img class="iph-s" src="img/phone-roadmap.webp" width="1179" height="2556" alt="Maya's dashboard on a phone: countdowns to her next deadlines"><img class="iph-f" src="img/iphone-15-black.png" width="1419" height="2796" alt=""></div>
+          <div class="iph"><img class="iph-s" src="img/phone-health.webp" width="1179" height="2556" alt="A health dashboard on a phone: dentist, blood test and a 10 km race"><img class="iph-f" src="img/iphone-15-black.png" width="1419" height="2796" alt=""></div>
+        </div>
+        <p class="cap">Maya’s year, her money and her health. Maya is fictional.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec alt center" id="timeline">
+    <div class="wrap">
+      <h2>Your whole year on one timeline.</h2>
+      <p class="lead">Each part of your project gets its own row. The cards on top count down to what is next.</p>
+    </div>
+    <div class="shot">
+      <div class="bw">
+        <div class="bw-bar"><i></i><i></i><i></i><div class="bw-u"><span>life-crm.jerryfane.com/demo/dashboard</span></div></div>
+        <div class="zoom"><img src="img/shot-career-roadmap.webp" width="2560" height="1600" alt="Maya's dashboard on a laptop: a one-year roadmap with rows for medical school, research, residency, CV, health and study" loading="lazy"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec" id="pieces">
+    <div class="wrap pieces">
+      <div class="pieces-t">
+        <h2>How the pieces fit.</h2>
+        <p class="lead">One Google Sheet holds everything. Every other piece reads from it or writes to it.</p>
+        <dl>
+          <div><dt>The sheet</dt><dd>One Google Sheet in your own Drive. The single source of truth.</dd></div>
+          <div><dt>Your AI agent</dt><dd>Claude Code or Codex. It builds everything and keeps it working.</dd></div>
+          <div><dt>The website</dt><dd>Your private dashboard, behind a login. A public page and CV if you want them.</dd></div>
+          <div><dt>Your chat assistant</dt><dd>The one you already talk to. Tell it what happened; it updates the sheet.</dd></div>
+          <div><dt>Connectors<small>Optional</small></dt><dd>Email, calendar and other apps that send facts in.</dd></div>
+        </dl>
+      </div>
+      <figure>
+        <a class="diagram" href="img/framework-c.svg" aria-label="Open the diagram full size"><img src="img/framework-c.svg" width="720" height="1124" alt="Diagram: your AI agent builds and maintains one Google Sheet; the sheet feeds your website; your chat assistant reads and updates the sheet; connectors send in facts. Only the public page and CV sit above the privacy line; the dashboard sits behind a Cloudflare login." loading="lazy"></a>
+        <figcaption>Above the line is public. Below it, only you.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="sec alt center" id="examples">
+    <div class="wrap">
+      <h2>Made for whatever you’re working on.</h2>
+      <p class="lead">A career move, your money, your health. All three examples are live: click around.</p>
+      <div class="tiles">
+        <article class="tile">
+          <div class="tile-b">
+            <span class="k">Career</span>
+            <h3>Maya applies to residency.</h3>
+            <p>Rotations, papers and a shortlist of programs. Plus a public page and a CV.</p>
+            <div class="links"><a class="more" href="https://life-crm.jerryfane.com/demo/dashboard/">Dashboard</a><a class="more" href="https://life-crm.jerryfane.com/demo/site/">Public page</a></div>
+          </div>
+          <div class="tile-img"><img src="img/q-tile-career.webp" width="2016" height="1260" alt="Residency programs table with country, specialty and deadline" loading="lazy"></div>
+        </article>
+        <article class="tile">
+          <div class="tile-b">
+            <span class="k">Money</span>
+            <h3>Pay off the car. Then move out.</h3>
+            <p>A car loan, an emergency fund, monthly bills and the tax return.</p>
+            <div class="links"><a class="more" href="https://life-crm.jerryfane.com/demo/finance/">Money dashboard</a></div>
+          </div>
+          <div class="tile-img"><img src="img/q-tile-money.webp" width="2016" height="1260" alt="Bills table: car insurance overdue, phone due, rent scheduled, internet paid" loading="lazy"></div>
+        </article>
+        <article class="tile">
+          <div class="tile-b">
+            <span class="k">Health</span>
+            <h3>Check-ups, results, a 10 km race.</h3>
+            <p>Appointments to book, lab results over time and a training plan.</p>
+            <div class="links"><a class="more" href="https://life-crm.jerryfane.com/demo/health/">Health dashboard</a></div>
+          </div>
+          <div class="tile-img"><img src="img/q-tile-health.webp" width="2016" height="1260" alt="Lab results: vitamin D low, cholesterol normal" loading="lazy"></div>
+        </article>
+      </div>
+      <p class="note">Maya Lindqvist is fictional. Every name, school, hospital and date in her examples is made up. Her dashboard is open so you can try it; yours sits behind a login.</p>
+    </div>
+  </section>
+
+  <section class="sec center" id="how">
+    <div class="wrap">
+      <h2>You talk. Your agent builds.</h2>
+      <p class="lead">It asks one thing at a time, shows you options to pick from, and explains anything you need to click.</p>
+      <ol class="steps">
+        <li><span class="t">30 min</span><h3>Talk</h3><p>Your goals, deadlines and papers, in your own words.</p></li>
+        <li><span class="t">20–30 min</span><h3>Choose</h3><p>Click through a few designs, starting from Maya’s.</p></li>
+        <li><span class="t">15 min</span><h3>Store</h3><p>One spreadsheet in your Drive. Edit it any time.</p></li>
+        <li><span class="t">15 min</span><h3>Publish</h3><p>Your dashboard goes online, behind a login.</p></li>
+        <li><span class="t">20 min</span><h3>Hand off</h3><p>Your chat assistant learns your sheet. Then you just tell it what happened.</p></li>
+      </ol>
+      <p class="total"><b>About two hours in total</b>, over a few days. You can stop after any step.</p>
+    </div>
+  </section>
+
+  <section class="sec alt center" id="cost">
+    <div class="wrap">
+      <h2>Free to run.</h2>
+      <p class="lead">Free plans and open source. Your agent asks before anything that costs money.</p>
+      <div class="two">
+        <div class="card">
+          <h3>What you need</h3>
+          <ul>
+            <li class="stack"><b>An AI agent that can run commands</b><span>Claude Code or Codex, for example.</span></li>
+            <li class="stack"><b>A Google account</b><span>Your sheet lives in your own Drive.</span></li>
+            <li class="stack"><b>About two hours</b><span>One conversation, a few choices, two logins.</span></li>
+            <li class="stack"><b>A Cloudflare account</b><span>Optional and free. It puts your sites online.</span></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>What it costs</h3>
+          <ul>
+            <li><b>The kit</b><span>Free, open source</span></li>
+            <li><b>Google Drive</b><span>Free</span></li>
+            <li><b>Hosting on Cloudflare</b><span>Free plan</span></li>
+            <li><b>Your own web address</b><span>Optional, about <span class="nw">$10–15</span> a year</span></li>
+            <li><b>Your AI agent</b><span>What you already pay</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec center" id="privacy">
+    <div class="wrap">
+      <h2>Private by design.</h2>
+      <p class="lead">Your data stays in your own accounts, in a spreadsheet you can read. Nothing is locked in.</p>
+      <ul class="priv">
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><b>Behind a login.</b><span>Only the emails you allow can open your dashboard.</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H10l2 2h6.5A2.5 2.5 0 0 1 21 9.5v8a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z"/></svg><b>In your Drive.</b><span>Your sheet, your folders. Nothing in anyone else’s account.</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10 10 0 0 1 12 5c5 0 9 5 9 7a8.7 8.7 0 0 1-2.2 3.3M6.3 6.3C4.2 7.7 3 10.2 3 12c0 2 4 7 9 7 1.6 0 3.1-.5 4.4-1.2"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg><b>Off the public page.</b><span>Health, money, phone number and address never appear on it.</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg><b>Only real facts.</b><span>Your agent never guesses. What you don’t know stays empty.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sec alt center final" id="start">
+    <div class="wrap">
+      <h2>Start with one prompt.</h2>
+      <p class="lead">Copy it, paste it into your AI agent, and answer its questions.</p>
+      <div class="prompt" data-prompt-box>
+        <p data-prompt>I want a personal CRM for a project in my life. Download https://github.com/jerryfane/life-crm (git clone, or the ZIP), read skill/SKILL.md, and follow it step by step with me. I am not a developer: ask me one thing at a time, show me options to choose from, and explain anything I need to click. Start with step 1.</p>
+        <div class="prompt-f"><span>Paste into Claude Code or Codex</span><button class="copy" type="button" data-copy>Copy</button></div>
+      </div>
+      <div class="links-row">
+        <a class="more" href="https://life-crm.jerryfane.com/demo/dashboard/">Demo dashboard</a>
+        <a class="more" href="https://life-crm.jerryfane.com/demo/site/">Maya’s public page</a>
+        <a class="more" href="https://life-crm.jerryfane.com/guide.pdf">Guide (PDF)</a>
+        <a class="more" href="https://github.com/jerryfane/life-crm">GitHub</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <nav aria-label="Footer">
+      <a href="https://life-crm.jerryfane.com/demo/dashboard/">Demo dashboard</a>
+      <a href="https://life-crm.jerryfane.com/demo/finance/">Money example</a>
+      <a href="https://life-crm.jerryfane.com/demo/health/">Health example</a>
+      <a href="https://life-crm.jerryfane.com/guide.pdf">Guide (PDF)</a>
+      <a href="https://github.com/jerryfane/life-crm">GitHub</a>
+    </nav>
+    <p>life-crm is open source under the AGPL-3.0 license.</p>
+    <p>Maya Lindqvist and everything in her examples are fictional.</p>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const copyText = async (text) => {
+    try { await navigator.clipboard.writeText(text); return true; } catch (_) {}
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+    document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, text.length);
+    let ok = false; try { ok = document.execCommand('copy'); } catch (_) {}
+    ta.remove(); return ok;
+  };
+  document.querySelectorAll('[data-copy]').forEach((btn) => {
+    const label = btn.textContent;
+    btn.addEventListener('click', async () => {
+      const p = btn.closest('[data-prompt-box]').querySelector('[data-prompt]');
+      const ok = await copyText(p.textContent.trim());
+      btn.textContent = ok ? 'Copied' : 'Press Ctrl+C';
+      btn.classList.toggle('ok', ok);
+      if (!ok) { const r = document.createRange(); r.selectNodeContents(p); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+      clearTimeout(btn._t); btn._t = setTimeout(() => { btn.textContent = label; btn.classList.remove('ok'); }, 2000);
+    });
+  });
+})();
+</script>
+</body>
+</html>

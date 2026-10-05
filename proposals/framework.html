@@ -51,8 +51,6 @@
   .scroll img { display: block; width: 100%; height: auto; border-radius: 12px; }
   .ph-kicker { margin: 0 0 4px; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #3f8a83; }
   .ph-h { margin: 0 0 16px; font-size: 22px; line-height: 1.2; font-weight: 800; letter-spacing: -0.02em; color: #1c2321; }
-  #p4 .ph-h { color: #eef3ff; }
-  #p4 .ph-kicker { color: #2ee6c5; }
   .facts { margin: 0; padding: var(--s4) var(--s5); background: var(--card); border: 1px solid var(--line); border-radius: 16px; display: grid; gap: var(--s3); font-size: 14px; }
   .facts div { display: grid; gap: 2px; }
   .facts dt { font-weight: 700; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
@@ -90,35 +88,35 @@
   <p class="lead">Four ways to draw the same map: you, your chat assistant, your dashboard, one Google Sheet in the middle, and the AI agent that builds it. Each one is a single SVG file that can go on the landing page and in the guide PDF.</p>
 </div>
 <nav class="bar" aria-label="Proposals">
-  <div class="wrap tabs" role="tablist"><a class="tab" href="#1" role="tab" aria-controls="p1" id="t1"><span class="num">1</span>Product cards</a><a class="tab" href="#2" role="tab" aria-controls="p2" id="t2"><span class="num">2</span>Layer stack</a><a class="tab" href="#3" role="tab" aria-controls="p3" id="t3"><span class="num">3</span>Notebook sketch</a><a class="tab" href="#4" role="tab" aria-controls="p4" id="t4"><span class="num">4</span>System map</a></div>
+  <div class="wrap tabs" role="tablist"><a class="tab" href="#1" role="tab" aria-controls="p1" id="t1"><span class="num">1</span>Notebook</a><a class="tab" href="#2" role="tab" aria-controls="p2" id="t2"><span class="num">2</span>Architecture</a><a class="tab" href="#3" role="tab" aria-controls="p3" id="t3"><span class="num">3</span>Quiet</a><a class="tab" href="#4" role="tab" aria-controls="p4" id="t4"><span class="num">4</span>Metro map</a></div>
 </nav>
 <main class="wrap">
   <section class="prop" id="p1" data-n="1" aria-labelledby="h1" hidden>
     <header class="prop-head">
       <p class="kicker">Proposal 1 of 4</p>
-      <h2 id="h1">Product cards</h2>
-      <p class="why">Calm white cards with colored icons, the same look as the dashboards, so the diagram feels like part of the product.</p>
+      <h2 id="h1">Notebook</h2>
+      <p class="why">The one you liked: your own sketch on lined paper, with marker colors. Now with larger text, cleaner spacing and arrows that touch their boxes.</p>
     </header>
     <div class="prop-body">
-      <figure class="stage" style="--stage:#f6f4ef">
-        <img src="img/framework-a.svg" width="720" height="1335" alt="life-crm framework diagram, product cards style">
+      <figure class="stage" style="--stage:#fbfaf4">
+        <img src="img/framework-1.svg" width="720" height="1196" alt="life-crm framework diagram, notebook style">
       </figure>
       <aside class="side">
         <div class="phone" aria-label="Preview at phone size, 393 pixels wide">
-          <div class="screen" style="--screen:#f6f4ef">
+          <div class="screen" style="--screen:#fbfaf4">
             <div class="scroll">
               <p class="ph-kicker">How it works</p>
               <p class="ph-h">One sheet. Everything else reads from it.</p>
-              <img src="img/framework-a.svg" width="720" height="1335" alt="">
+              <img src="img/framework-1.svg" width="720" height="1196" alt="">
             </div>
           </div>
           <img class="frame" src="img/iphone-15-black.png" width="1419" height="2796" alt="">
         </div>
         <dl class="facts">
-          <div><dt>File</dt><dd><a href="img/framework-a.svg">img/framework-a.svg</a> · 118 KB · 720×1335</dd></div>
-          <div><dt>Fonts</dt><dd>Inter, embedded in the SVG (safe system fallbacks listed)</dd></div>
-          <div><dt>On a 390px phone</dt><dd>Shown 358px wide: titles ≈ 12px, body ≈ 9.9px, smallest label ≈ 7.5px</dd></div>
-          <div><dt>On an A5 page</dt><dd>446px text width: body ≈ 9.3pt, smallest label ≈ 7.0pt</dd></div>
+          <div><dt>File</dt><dd><a href="img/framework-1.svg">img/framework-1.svg</a> · 161 KB · 720×1196</dd></div>
+          <div><dt>Fonts</dt><dd>Caveat + Patrick Hand, embedded in the SVG (safe system fallbacks listed)</dd></div>
+          <div><dt>On a 390px phone</dt><dd>Shown 358px wide: titles ≈ 23px, body ≈ 11.4px, smallest label ≈ 10.7px</dd></div>
+          <div><dt>On an A5 page</dt><dd>446px text width: body ≈ 10.7pt, smallest label ≈ 10.0pt</dd></div>
           <div><dt>Checked</dt><dd>Renders in Chrome; no labels overlap or get clipped; tested at 1440px and 390px wide</dd></div>
         </dl>
       </aside>
@@ -127,29 +125,29 @@
   <section class="prop" id="p2" data-n="2" aria-labelledby="h2" hidden>
     <header class="prop-head">
       <p class="kicker">Proposal 2 of 4</p>
-      <h2 id="h2">Layer stack</h2>
-      <p class="why">Four 3D shelves (public, what you use, your data, behind the scenes) make the privacy line and the sheet in the middle impossible to miss.</p>
+      <h2 id="h2">Architecture</h2>
+      <p class="why">The standard look engineers know: boxes grouped by account, right-angle arrows with short labels, and a legend. The most exact of the four.</p>
     </header>
     <div class="prop-body">
-      <figure class="stage" style="--stage:#eef1f8">
-        <img src="img/framework-b.svg" width="720" height="1389" alt="life-crm framework diagram, layer stack style">
+      <figure class="stage" style="--stage:#ffffff">
+        <img src="img/framework-2.svg" width="720" height="1299" alt="life-crm framework diagram, architecture style">
       </figure>
       <aside class="side">
         <div class="phone" aria-label="Preview at phone size, 393 pixels wide">
-          <div class="screen" style="--screen:#eef1f8">
+          <div class="screen" style="--screen:#ffffff">
             <div class="scroll">
               <p class="ph-kicker">How it works</p>
               <p class="ph-h">One sheet. Everything else reads from it.</p>
-              <img src="img/framework-b.svg" width="720" height="1389" alt="">
+              <img src="img/framework-2.svg" width="720" height="1299" alt="">
             </div>
           </div>
           <img class="frame" src="img/iphone-15-black.png" width="1419" height="2796" alt="">
         </div>
         <dl class="facts">
-          <div><dt>File</dt><dd><a href="img/framework-b.svg">img/framework-b.svg</a> · 74 KB · 720×1389</dd></div>
-          <div><dt>Fonts</dt><dd>Manrope, embedded in the SVG (safe system fallbacks listed)</dd></div>
-          <div><dt>On a 390px phone</dt><dd>Shown 358px wide: titles ≈ 12px, body ≈ 9.4px, smallest label ≈ 7.5px</dd></div>
-          <div><dt>On an A5 page</dt><dd>446px text width: body ≈ 8.8pt, smallest label ≈ 7.0pt</dd></div>
+          <div><dt>File</dt><dd><a href="img/framework-2.svg">img/framework-2.svg</a> · 111 KB · 720×1299</dd></div>
+          <div><dt>Fonts</dt><dd>IBM Plex Sans + IBM Plex Mono, embedded in the SVG (safe system fallbacks listed)</dd></div>
+          <div><dt>On a 390px phone</dt><dd>Shown 358px wide: titles ≈ 10px, body ≈ 9.2px, smallest label ≈ 7.2px</dd></div>
+          <div><dt>On an A5 page</dt><dd>446px text width: body ≈ 8.6pt, smallest label ≈ 6.7pt</dd></div>
           <div><dt>Checked</dt><dd>Renders in Chrome; no labels overlap or get clipped; tested at 1440px and 390px wide</dd></div>
         </dl>
       </aside>
@@ -158,29 +156,29 @@
   <section class="prop" id="p3" data-n="3" aria-labelledby="h3" hidden>
     <header class="prop-head">
       <p class="kicker">Proposal 3 of 4</p>
-      <h2 id="h3">Notebook sketch</h2>
-      <p class="why">Your own drawing, cleaned up: same boxes, same arrows, marker colors on lined paper. Personal and friendly for non-developers.</p>
+      <h2 id="h3">Quiet</h2>
+      <p class="why">Matches the Quiet landing page: white space, soft grey tiles, thin lines, and one blue card for the sheet. Very little text.</p>
     </header>
     <div class="prop-body">
-      <figure class="stage" style="--stage:#fbfaf4">
-        <img src="img/framework-c.svg" width="720" height="1124" alt="life-crm framework diagram, notebook sketch style">
+      <figure class="stage" style="--stage:#ffffff">
+        <img src="img/framework-3.svg" width="720" height="1174" alt="life-crm framework diagram, quiet style">
       </figure>
       <aside class="side">
         <div class="phone" aria-label="Preview at phone size, 393 pixels wide">
-          <div class="screen" style="--screen:#fbfaf4">
+          <div class="screen" style="--screen:#ffffff">
             <div class="scroll">
               <p class="ph-kicker">How it works</p>
               <p class="ph-h">One sheet. Everything else reads from it.</p>
-              <img src="img/framework-c.svg" width="720" height="1124" alt="">
+              <img src="img/framework-3.svg" width="720" height="1174" alt="">
             </div>
           </div>
           <img class="frame" src="img/iphone-15-black.png" width="1419" height="2796" alt="">
         </div>
         <dl class="facts">
-          <div><dt>File</dt><dd><a href="img/framework-c.svg">img/framework-c.svg</a> · 160 KB · 720×1124</dd></div>
-          <div><dt>Fonts</dt><dd>Caveat + Patrick Hand, embedded in the SVG (safe system fallbacks listed)</dd></div>
-          <div><dt>On a 390px phone</dt><dd>Shown 358px wide: titles ≈ 22px, body ≈ 10.4px, smallest label ≈ 9.9px</dd></div>
-          <div><dt>On an A5 page</dt><dd>446px text width: body ≈ 9.8pt, smallest label ≈ 9.3pt</dd></div>
+          <div><dt>File</dt><dd><a href="img/framework-3.svg">img/framework-3.svg</a> · 96 KB · 720×1174</dd></div>
+          <div><dt>Fonts</dt><dd>Inter, embedded in the SVG (safe system fallbacks listed)</dd></div>
+          <div><dt>On a 390px phone</dt><dd>Shown 358px wide: titles ≈ 12px, body ≈ 8.9px, smallest label ≈ 8.0px</dd></div>
+          <div><dt>On an A5 page</dt><dd>446px text width: body ≈ 8.4pt, smallest label ≈ 7.4pt</dd></div>
           <div><dt>Checked</dt><dd>Renders in Chrome; no labels overlap or get clipped; tested at 1440px and 390px wide</dd></div>
         </dl>
       </aside>
@@ -189,29 +187,29 @@
   <section class="prop" id="p4" data-n="4" aria-labelledby="h4" hidden>
     <header class="prop-head">
       <p class="kicker">Proposal 4 of 4</p>
-      <h2 id="h4">System map</h2>
-      <p class="why">A dark map with the sheet as a glowing hub and everything else in orbit. The boldest option, made for a landing-page hero.</p>
+      <h2 id="h4">Metro map</h2>
+      <p class="why">Three lines (build, daily, publish) meet at the sheet. Everyone can read a metro map, and the privacy line becomes a fare zone with Cloudflare as the gate.</p>
     </header>
     <div class="prop-body">
-      <figure class="stage" style="--stage:#070c18">
-        <img src="img/framework-d.svg" width="720" height="1210" alt="life-crm framework diagram, system map style">
+      <figure class="stage" style="--stage:#ffffff">
+        <img src="img/framework-4.svg" width="720" height="1334" alt="life-crm framework diagram, metro map style">
       </figure>
       <aside class="side">
         <div class="phone" aria-label="Preview at phone size, 393 pixels wide">
-          <div class="screen" style="--screen:#070c18">
+          <div class="screen" style="--screen:#ffffff">
             <div class="scroll">
               <p class="ph-kicker">How it works</p>
               <p class="ph-h">One sheet. Everything else reads from it.</p>
-              <img src="img/framework-d.svg" width="720" height="1210" alt="">
+              <img src="img/framework-4.svg" width="720" height="1334" alt="">
             </div>
           </div>
           <img class="frame" src="img/iphone-15-black.png" width="1419" height="2796" alt="">
         </div>
         <dl class="facts">
-          <div><dt>File</dt><dd><a href="img/framework-d.svg">img/framework-d.svg</a> · 104 KB · 720×1210</dd></div>
-          <div><dt>Fonts</dt><dd>Space Grotesk + JetBrains Mono, embedded in the SVG (safe system fallbacks listed)</dd></div>
-          <div><dt>On a 390px phone</dt><dd>Shown 358px wide: titles ≈ 12px, body ≈ 9.4px, smallest label ≈ 7.5px</dd></div>
-          <div><dt>On an A5 page</dt><dd>446px text width: body ≈ 8.8pt, smallest label ≈ 7.0pt</dd></div>
+          <div><dt>File</dt><dd><a href="img/framework-4.svg">img/framework-4.svg</a> · 60 KB · 720×1334</dd></div>
+          <div><dt>Fonts</dt><dd>Overpass, embedded in the SVG (safe system fallbacks listed)</dd></div>
+          <div><dt>On a 390px phone</dt><dd>Shown 358px wide: titles ≈ 11px, body ≈ 8.9px, smallest label ≈ 8.0px</dd></div>
+          <div><dt>On an A5 page</dt><dd>446px text width: body ≈ 8.4pt, smallest label ≈ 7.4pt</dd></div>
           <div><dt>Checked</dt><dd>Renders in Chrome; no labels overlap or get clipped; tested at 1440px and 390px wide</dd></div>
         </dl>
       </aside>

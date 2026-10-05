@@ -11,8 +11,9 @@ chapter to one page; the build fails if the PDF grows past 1 + number of chapter
 Needs `markdown-it-py` (pip install markdown-it-py), Google Chrome or Chromium, and `pdfinfo`
 (poppler) for the page check. Fonts: Georgia and Lato if installed, else close system fonts.
 
-Markdown conventions: `> **Label:** text` becomes a card tagged "Label"; a two-column table
-with an empty header row becomes a list of definitions.
+Markdown conventions: `> **Label:** text` becomes a flat tinted note tagged "Label"; a two-column
+table with an empty header row becomes a list of definitions; `## 3 Choose` followed by
+`**You:**`, `**Your agent:**`, `**Expect:**` paragraphs becomes a numbered step block.
 """
 from __future__ import annotations
 
@@ -56,6 +57,11 @@ def render(md: MarkdownIt, text: str) -> str:
 
     body = re.sub(r"<blockquote>(.*?)</blockquote>", card, body, flags=re.S)
     body = re.sub(r"<table>\s*<thead>\s*<tr>\s*<th></th>\s*<th></th>\s*</tr>\s*</thead>", '<table class="defs">', body)
+    # "## 3 Choose" + "**You:** ..." paragraphs -> a numbered step block with labelled lines.
+    body = re.sub(r"<p><strong>(You|Your agent|Expect):</strong>\s*",
+                  lambda m: f'<p class="line"><span class="who">{"Agent" if m[1] == "Your agent" else m[1]}</span>', body)
+    body = re.sub(r"<h2>(\d+) ([^<]+)</h2>((?:(?!<h2>|<aside).)*)",
+                  r'<div class="step"><span class="num">\1</span><div><h2>\2</h2>\3</div></div>', body, flags=re.S)
     body = re.sub(r'<p><img src="([^"]+)" alt="([^"]*)" ?/?></p>', r'<figure class="diagram"><img src="\1" alt="\2"></figure>', body)
     return f'<section class="page"><h1>{html.escape(title)}</h1>{body}</section>'
 
@@ -95,14 +101,23 @@ strong { font-weight: 700; }
 .page { break-before: page; }
 .page > p:first-of-type { color: var(--muted); font-size: 10pt; }
 
-table { width: 100%; border-collapse: collapse; margin: 1mm 0 4mm; font-size: 8.5pt; }
-th { text-align: left; font-weight: 800; color: var(--muted); font-size: 7pt; letter-spacing: .08em; text-transform: uppercase;
+table { width: 100%; border-collapse: collapse; margin: 1mm 0 4mm; font-size: 8.4pt; break-inside: avoid; }
+th { text-align: left; font-weight: 800; color: var(--muted); font-size: 6.8pt; letter-spacing: .08em; text-transform: uppercase;
   border-bottom: 1.3pt solid var(--ink); padding: 1.2mm 2mm 1.2mm 0; }
 td { border-bottom: .6pt solid var(--line); padding: 1.7mm 2.5mm 1.7mm 0; vertical-align: top; }
 td:first-child { white-space: nowrap; }
-table.defs td:first-child { width: 30%; color: var(--teal); }
+table.defs td:first-child { width: 30%; color: var(--teal); white-space: normal; }
+/* Numbered setup steps: number, title, then You / Your agent / Expect lines. */
+.step { display: grid; grid-template-columns: 7mm 1fr; gap: 3mm; padding: 2.3mm 0; border-bottom: .6pt solid var(--line); break-inside: avoid; }
+.step:last-of-type { border-bottom: 0; }
+.step .num { width: 7mm; height: 7mm; border-radius: 50%; background: var(--teal); color: #fff; font: 700 9pt/7mm Lato, sans-serif; text-align: center; }
+.step h2 { font: 600 11.5pt/1.2 Georgia, serif; margin: .7mm 0 1.2mm; }
+.line { display: grid; grid-template-columns: 17mm 1fr; gap: 2mm; margin: 0 0 .8mm; font-size: 8.3pt; line-height: 1.4; }
+.line .who { font-size: 6.6pt; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--teal); padding-top: .5mm; }
+.line:last-child { color: var(--muted); margin-bottom: 0; }
 
-.card { border: .8pt solid var(--line); border-left: 2.4pt solid var(--teal); border-radius: 2.5mm; padding: 2.6mm 3.5mm .4mm; margin: 0 0 3mm; font-size: 8.7pt; break-inside: avoid; }
+/* Flat note: a soft tinted panel, no outline or side stripe. */
+.card { background: #eef4f2; border-radius: 2mm; padding: 2.8mm 3.6mm .6mm; margin: 0 0 3mm; font-size: 8.6pt; break-inside: avoid; }
 .card .tag, .paste .tag { display: block; font-size: 6.8pt; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--teal); margin-bottom: .6mm; }
 .diagram { margin: 2mm 0 4mm; } .diagram img { display: block; width: 100%; }
 
