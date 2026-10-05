@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Guide cut from 25 pages to 4: a cover with the prompt, then one page each for what you get,
+  the 8 steps, and privacy/costs. The build fails if a chapter spills past one page.
+
 ## v1.0.0 (2026-10-05)
 
 First release.

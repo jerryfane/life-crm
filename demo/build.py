@@ -55,8 +55,10 @@ def main() -> None:
         # One robots.txt and one 404 page for the whole domain, at the root.
         (out / "demo" / sub / "robots.txt").unlink(missing_ok=True)
         (out / "demo" / sub / "404.html").unlink(missing_ok=True)
-    # Maya is fictional: keep her pages out of search results; the landing page stays indexable.
-    (out / "robots.txt").write_text("User-agent: *\nDisallow: /demo/\n")
+    # Design proposals for review; out of search like Maya's pages (she is fictional).
+    if (ROOT / "proposals").is_dir():
+        shutil.copytree(ROOT / "proposals", out / "proposals")
+    (out / "robots.txt").write_text("User-agent: *\nDisallow: /demo/\nDisallow: /proposals/\n")
     shutil.rmtree(work)
     print(f"demo: {out}")
 

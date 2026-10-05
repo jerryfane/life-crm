@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>life-crm · framework diagram proposals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f4ef; --card: #fff; --ink: #1c2321; --muted: #5d6763; --line: #e4e0d6;
+    --teal: #1f5f5b; --teal-soft: #e3efed;
+    --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 400 16px/1.5 Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  a { color: var(--teal); }
+  .wrap { max-width: 1264px; margin: 0 auto; padding: 0 var(--s6); }
+  .top { padding-top: var(--s7); padding-bottom: var(--s5); }
+  .top .kicker { margin: 0 0 var(--s2); }
+  .top h1 { margin: 0; font-size: 40px; line-height: 1.1; letter-spacing: -0.02em; font-weight: 800; }
+  .top p.lead { margin: var(--s3) 0 0; max-width: 680px; color: var(--muted); font-size: 18px; }
+  .kicker { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--teal); }
+
+  .bar { position: sticky; top: 0; z-index: 10; background: rgba(246,244,239,.92); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  .tabs { display: flex; gap: var(--s2); padding-top: var(--s3); padding-bottom: var(--s3); overflow-x: auto; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { flex: 0 0 auto; display: inline-flex; align-items: center; gap: var(--s2); height: 40px; padding: 0 var(--s4) 0 var(--s2); border-radius: 20px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font-weight: 600; font-size: 15px; text-decoration: none; white-space: nowrap; }
+  .tab .num { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 13px; background: var(--teal-soft); color: var(--teal); font-size: 13px; font-weight: 800; }
+  .tab:hover { border-color: #cfc9bc; }
+  .tab[aria-selected="true"] { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .tab[aria-selected="true"] .num { background: #fff; color: var(--ink); }
+  .tab:focus-visible { outline: 3px solid #7fb4ae; outline-offset: 2px; }
+
+  .prop { padding: var(--s6) 0 var(--s8); }
+  .prop-head { max-width: 720px; margin-bottom: var(--s5); }
+  .prop-head h2 { margin: var(--s1) 0 var(--s2); font-size: 32px; line-height: 1.15; letter-spacing: -0.02em; font-weight: 800; }
+  .prop-head .why { margin: 0; font-size: 18px; color: var(--muted); }
+  .prop-body { display: grid; grid-template-columns: minmax(0, 720px) 473px; gap: var(--s7); align-items: start; justify-content: space-between; }
+  .stage { margin: 0; background: var(--stage); border-radius: 20px; overflow: hidden; box-shadow: 0 1px 2px rgba(42,36,24,.06), 0 12px 32px rgba(42,36,24,.08); }
+  .stage img { display: block; width: 100%; height: auto; }
+
+  .side { display: grid; gap: var(--s5); }
+  .phone { position: relative; width: 473px; aspect-ratio: 1419 / 2796; }
+  .phone .frame { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  .screen { position: absolute; left: 8.457%; top: 4.328%; width: 83.09%; height: 91.38%; border-radius: 14.2% / 6.55%; overflow: hidden; background: var(--screen); }
+  .scroll { height: 100%; overflow-y: auto; padding: 64px 16px 32px; scrollbar-width: none; }
+  .scroll::-webkit-scrollbar { display: none; }
+  .scroll img { display: block; width: 100%; height: auto; border-radius: 12px; }
+  .ph-kicker { margin: 0 0 4px; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #3f8a83; }
+  .ph-h { margin: 0 0 16px; font-size: 22px; line-height: 1.2; font-weight: 800; letter-spacing: -0.02em; color: #1c2321; }
+  #p4 .ph-h { color: #eef3ff; }
+  #p4 .ph-kicker { color: #2ee6c5; }
+  .facts { margin: 0; padding: var(--s4) var(--s5); background: var(--card); border: 1px solid var(--line); border-radius: 16px; display: grid; gap: var(--s3); font-size: 14px; }
+  .facts div { display: grid; gap: 2px; }
+  .facts dt { font-weight: 700; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .facts dd { margin: 0; overflow-wrap: anywhere; }
+
+  .foot { border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+  .foot p { margin: 0; max-width: 720px; padding-top: var(--s5); padding-bottom: var(--s7); }
+
+  @media (max-width: 1240px) {
+    .prop-body { grid-template-columns: minmax(0, 1fr); }
+    .stage { max-width: 720px; }
+    .side { grid-template-columns: 473px minmax(0, 1fr); align-items: start; }
+  }
+  @media (max-width: 760px) {
+    .wrap { padding: 0 var(--s4); }
+    .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); padding-top: var(--s2); padding-bottom: var(--s2); overflow: visible; }
+    .tab { height: 36px; font-size: 14px; padding: 0 var(--s3) 0 6px; min-width: 0; }
+    .tab .num { width: 24px; height: 24px; font-size: 12px; }
+    .top { padding-top: var(--s6); padding-bottom: var(--s4); }
+    .top h1 { font-size: 30px; }
+    .top p.lead, .prop-head .why { font-size: 16px; }
+    .prop { padding: var(--s5) 0 var(--s7); }
+    .prop-head h2 { font-size: 26px; }
+    .stage { border-radius: 14px; }
+    .side { grid-template-columns: minmax(0, 1fr); }
+    .phone { display: none; }
+    .facts { padding: var(--s4); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap top">
+  <p class="kicker">life-crm · design proposals</p>
+  <h1>The framework, as one picture</h1>
+  <p class="lead">Four ways to draw the same map: you, your chat assistant, your dashboard, one Google Sheet in the middle, and the AI agent that builds it. Each one is a single SVG file that can go on the landing page and in the guide PDF.</p>
+</div>
+<nav class="bar" aria-label="Proposals">
+  <div class="wrap tabs" role="tablist"><a class="tab" href="#1" role="tab" aria-controls="p1" id="t1"><span class="num">1</span>Product cards</a><a class="tab" href="#2" role="tab" aria-controls="p2" id="t2"><span class="num">2</span>Layer stack</a><a class="tab" href="#3" role="tab" aria-controls="p3" id="t3"><span class="num">3</span>Notebook sketch</a><a class="tab" href="#4" role="tab" aria-controls="p4" id="t4"><span class="num">4</span>System map</a></div>
+</nav>
+<main class="wrap">
+  <section class="prop" id="p1" data-n="1" aria-labelledby="h1" hidden>
+    <header class="prop-head">
+      <p class="kicker">Proposal 1 of 4</p>
+      <h2 id="h1">Product cards</h2>
+      <p class="why">Calm white cards with colored icons, the same look as the dashboards, so the diagram feels like part of the product.</p>
+    </header>
+    <div class="prop-body">
+      <figure class="stage" style="--stage:#f6f4ef">
+        <img src="img/framework-a.svg" width="720" height="1335" alt="life-crm framework diagram, product cards style">
+      </figure>
+      <aside class="side">
+        <div class="phone" aria-label="Preview at phone size, 393 pixels wide">
+          <div class="screen" style="--screen:#f6f4ef">
+            <div class="scroll">
+              <p class="ph-kicker">How it works</p>
+              <p class="ph-h">One sheet. Everything else reads from it.</p>
+              <img src="img/framework-a.svg" width="720" height="1335" alt="">
+            </div>
+          </div>
+          <img class="frame" src="img/iphone-15-black.png" width="1419" height="2796" alt="">
+        </div>
+        <dl class="facts">
+          <div><dt>File</dt><dd><a href="img/framework-a.svg">img/framework-a.svg</a> · 118 KB · 720×1335</dd></div>
+          <div><dt>Fonts</dt><dd>Inter, embedded in the SVG (safe system fallbacks listed)</dd></div>
+          <div><dt>On a 390px phone</dt><dd>Shown 358px wide: titles ≈ 12px, body ≈ 9.9px, smallest label ≈ 7.5px</dd></div>
+          <div><dt>On an A5 page</dt><dd>446px text width: body ≈ 9.3pt, smallest label ≈ 7.0pt</dd></div>
+          <div><dt>Checked</dt><dd>Renders in Chrome; no labels overlap or get clipped; tested at 1440px and 390px wide</dd></div>
+        </dl>
+      </aside>
+    </div>
+  </section>
+  <section class="prop" id="p2" data-n="2" aria-labelledby="h2" hidden>
+    <header class="prop-head">
+      <p class="kicker">Proposal 2 of 4</p>
+      <h2 id="h2">Layer stack</h2>
+      <p class="why">Four 3D shelves (public, what you use, your data, behind the scenes) make the privacy line and the sheet in the middle impossible to miss.</p>
+    </header>
+    <div class="prop-body">
+      <figure class="stage" style="--stage:#eef1f8">
+        <img src="img/framework-b.svg" width="720" height="1389" alt="life-crm framework diagram, layer stack style">
+      </figure>
+      <aside class="side">
+        <div class="phone" aria-label="Preview at phone size, 393 pixels wide">
+          <div class="screen" style="--screen:#eef1f8">
+            <div class="scroll">
+              <p class="ph-kicker">How it works</p>
+              <p class="ph-h">One sheet. Everything else reads from it.</p>
+              <img src="img/framework-b.svg" width="720" height="1389" alt="">
+            </div>
+          </div>
+          <img class="frame" src="img/iphone-15-black.png" width="1419" height="2796" alt="">
+        </div>
+        <dl class="facts">
+          <div><dt>File</dt><dd><a href="img/framework-b.svg">img/framework-b.svg</a> · 74 KB · 720×1389</dd></div>
+          <div><dt>Fonts</dt><dd>Manrope, embedded in the SVG (safe system fallbacks listed)</dd></div>
+          <div><dt>On a 390px phone</dt><dd>Shown 358px wide: titles ≈ 12px, body ≈ 9.4px, smallest label ≈ 7.5px</dd></div>
+          <div><dt>On an A5 page</dt><dd>446px text width: body ≈ 8.8pt, smallest label ≈ 7.0pt</dd></div>
+          <div><dt>Checked</dt><dd>Renders in Chrome; no labels overlap or get clipped; tested at 1440px and 390px wide</dd></div>
+        </dl>
+      </aside>
+    </div>
+  </section>
+  <section class="prop" id="p3" data-n="3" aria-labelledby="h3" hidden>
+    <header class="prop-head">
+      <p class="kicker">Proposal 3 of 4</p>
+      <h2 id="h3">Notebook sketch</h2>
+      <p class="why">Your own drawing, cleaned up: same boxes, same arrows, marker colors on lined paper. Personal and friendly for non-developers.</p>
+    </header>
+    <div class="prop-body">
+      <figure class="stage" style="--stage:#fbfaf4">
+        <img src="img/framework-c.svg" width="720" height="1124" alt="life-crm framework diagram, notebook sketch style">
+      </figure>
+      <aside class="side">
+        <div class="phone" aria-label="Preview at phone size, 393 pixels wide">
+          <div class="screen" style="--screen:#fbfaf4">
+            <div class="scroll">
+              <p class="ph-kicker">How it works</p>
+              <p class="ph-h">One sheet. Everything else reads from it.</p>
+              <img src="img/framework-c.svg" width="720" height="1124" alt="">
+            </div>
+          </div>
+          <img class="frame" src="img/iphone-15-black.png" width="1419" height="2796" alt="">
+        </div>
+        <dl class="facts">
+          <div><dt>File</dt><dd><a href="img/framework-c.svg">img/framework-c.svg</a> · 160 KB · 720×1124</dd></div>
+          <div><dt>Fonts</dt><dd>Caveat + Patrick Hand, embedded in the SVG (safe system fallbacks listed)</dd></div>
+          <div><dt>On a 390px phone</dt><dd>Shown 358px wide: titles ≈ 22px, body ≈ 10.4px, smallest label ≈ 9.9px</dd></div>
+          <div><dt>On an A5 page</dt><dd>446px text width: body ≈ 9.8pt, smallest label ≈ 9.3pt</dd></div>
+          <div><dt>Checked</dt><dd>Renders in Chrome; no labels overlap or get clipped; tested at 1440px and 390px wide</dd></div>
+        </dl>
+      </aside>
+    </div>
+  </section>
+  <section class="prop" id="p4" data-n="4" aria-labelledby="h4" hidden>
+    <header class="prop-head">
+      <p class="kicker">Proposal 4 of 4</p>
+      <h2 id="h4">System map</h2>
+      <p class="why">A dark map with the sheet as a glowing hub and everything else in orbit. The boldest option, made for a landing-page hero.</p>
+    </header>
+    <div class="prop-body">
+      <figure class="stage" style="--stage:#070c18">
+        <img src="img/framework-d.svg" width="720" height="1210" alt="life-crm framework diagram, system map style">
+      </figure>
+      <aside class="side">
+        <div class="phone" aria-label="Preview at phone size, 393 pixels wide">
+          <div class="screen" style="--screen:#070c18">
+            <div class="scroll">
+              <p class="ph-kicker">How it works</p>
+              <p class="ph-h">One sheet. Everything else reads from it.</p>
+              <img src="img/framework-d.svg" width="720" height="1210" alt="">
+            </div>
+          </div>
+          <img class="frame" src="img/iphone-15-black.png" width="1419" height="2796" alt="">
+        </div>
+        <dl class="facts">
+          <div><dt>File</dt><dd><a href="img/framework-d.svg">img/framework-d.svg</a> · 104 KB · 720×1210</dd></div>
+          <div><dt>Fonts</dt><dd>Space Grotesk + JetBrains Mono, embedded in the SVG (safe system fallbacks listed)</dd></div>
+          <div><dt>On a 390px phone</dt><dd>Shown 358px wide: titles ≈ 12px, body ≈ 9.4px, smallest label ≈ 7.5px</dd></div>
+          <div><dt>On an A5 page</dt><dd>446px text width: body ≈ 8.8pt, smallest label ≈ 7.0pt</dd></div>
+          <div><dt>Checked</dt><dd>Renders in Chrome; no labels overlap or get clipped; tested at 1440px and 390px wide</dd></div>
+        </dl>
+      </aside>
+    </div>
+  </section>
+</main>
+<footer class="foot"><div class="wrap">
+  <p>Same content in all four: Human, Interface, Website, Storage, Engine, Repo and Connectors, with the arrows from the original sketch. Solid lines are always connected; dashed lines are used only when needed. The privacy line runs across the top, and Cloudflare login is the gate the website passes through.</p>
+</div></footer>
+<script>
+  (function () {
+    var tabs = Array.prototype.slice.call(document.querySelectorAll(".tab"));
+    var props = Array.prototype.slice.call(document.querySelectorAll(".prop"));
+    function show() {
+      var n = parseInt((location.hash || "#1").slice(1), 10);
+      if (!(n >= 1 && n <= props.length)) n = 1;
+      props.forEach(function (p, i) { p.hidden = i !== n - 1; });
+      tabs.forEach(function (t, i) {
+        var on = i === n - 1;
+        t.setAttribute("aria-selected", on ? "true" : "false");
+        t.tabIndex = on ? 0 : -1;
+        if (on) { var bar = t.parentNode, l = t.offsetLeft - bar.offsetLeft; if (l < bar.scrollLeft || l + t.offsetWidth > bar.scrollLeft + bar.clientWidth) bar.scrollLeft = l - 16; }
+      });
+    }
+    window.addEventListener("hashchange", show);
+    document.querySelector(".tabs").addEventListener("keydown", function (e) {
+      var i = tabs.indexOf(document.activeElement);
+      if (i < 0) return;
+      var j = e.key === "ArrowRight" ? (i + 1) % tabs.length : e.key === "ArrowLeft" ? (i + tabs.length - 1) % tabs.length : -1;
+      if (j < 0) return;
+      e.preventDefault();
+      location.hash = "#" + (j + 1);
+      tabs[j].focus();
+    });
+    show();
+  })();
+</script>
+</body>
+</html>

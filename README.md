@@ -17,7 +17,7 @@ need to click. Start with step 1.
 
 Your agent will interview you, show you clickable designs to choose from, and set everything up in your own Google Drive and (optionally) your own free Cloudflare account. You will log in twice and confirm your facts; the agent does the rest.
 
-**Read first:** [the illustrated guide (PDF)](guide/life-crm-guide.pdf) explains every step in plain language: what you do, what your agent does, what it costs.
+**Read first:** [the 4-page guide (PDF)](guide/life-crm-guide.pdf): what you do, what your agent does, what it costs.
 
 ## How it works
 
