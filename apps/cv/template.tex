@@ -1,0 +1,46 @@
+% life-crm CV layout. apps/lifecrm/cv.py fills the <<PLACEHOLDERS>> from the Profile and Entries tabs.
+% Change fonts, spacing and colors here; change content in the spreadsheet.
+\documentclass[10pt]{article}
+\usepackage[letterpaper,margin=0.75in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{charter}
+\usepackage[scaled=0.92]{helvet}
+\usepackage{microtype}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{tabularx}
+\usepackage[hidelinks,pdfusetitle]{hyperref}
+
+\definecolor{accent}{HTML}{1F5F5B}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\linespread{1.05}
+
+\titleformat{\section}{\sffamily\bfseries\small\color{accent}}{}{0pt}{\MakeUppercase}[\vspace{2pt}\titlerule]
+\titlespacing*{\section}{0pt}{12pt}{6pt}
+\setlist[itemize]{leftmargin=1.2em,topsep=2pt,itemsep=1pt,parsep=0pt,label={\small\textbullet}}
+
+% \entry{title}{dates}{organization, location}
+\newcommand{\entry}[3]{%
+  \begin{tabularx}{\linewidth}{@{}X r@{}}
+    \textbf{#1} & \small #2 \\
+    \textit{#3} & \\
+  \end{tabularx}\par\vspace{1pt}}
+\newcommand{\gap}{\vspace{6pt}}
+
+\hypersetup{pdftitle={<<NAME>> CV},pdfauthor={<<NAME>>}}
+
+\begin{document}
+
+\begin{center}
+  {\fontsize{22}{26}\selectfont\bfseries <<NAME>>}\\[4pt]
+  {\small <<HEADLINE>>}\\[3pt]
+  {\small <<CONTACT>>}
+\end{center}
+
+<<SECTIONS>>
+
+\end{document}

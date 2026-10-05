@@ -25,6 +25,13 @@ Build your own personal CRM for any life project (your career, your money, your 
 | Website | The views of your data | A public page + a private dashboard |
 | Privacy | Who can see what | A login in front of the private dashboard |
 
+## What's in this repo
+
+| Folder | What it is |
+|---|---|
+| [`apps/`](apps/) | The code that turns your spreadsheet into the dashboard, the public site and the CV ([reference](apps/README.md)) |
+| [`examples/`](examples/) | Three ready spreadsheets: a career (a fictional medical student), money, and health |
+
 ## License
 
 [AGPL-3.0](LICENSE).
