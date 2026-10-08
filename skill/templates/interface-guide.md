@@ -42,7 +42,7 @@ One row per rotation, deadline, appointment or to-do.
 | `timeline` | one of the ids above |
 | `title` | short: "Surgery exam", "Ask Dr. X for a letter" |
 | `kind` | `period` (has `start` and `end`), `milestone` (one `date`), `task` (a to-do, `date` optional) |
-| `status` | `todo`, `doing`, `done`, or `to book` (an appointment not booked yet) |
+| `status` | `todo`, `doing`, `done`, `to book` (an appointment not booked yet), `waiting` (on someone else) or `stuck` |
 | `track` | <the row inside the timeline: Rotations, Exams, Letters, ...> |
 | `owner` | who does it, if not <name> |
 | `notes` | one line, optional |
@@ -69,7 +69,7 @@ then ask <name> whether to publish. Never change `show` to `yes` without a clear
 
 | Without asking | Ask first |
 |---|---|
-| Mark a step `done` or `doing` when <name> says so | Anything that appears on the public page |
+| Mark a step `done`, `doing`, `waiting` or `stuck` when <name> says so | Anything that appears on the public page |
 | Add a step with a date <name> gave you | Deleting any row |
 | Add an update row | Adding, removing or renaming timelines, tabs or columns |
 | Fix an obvious typo | Moving or renaming files |

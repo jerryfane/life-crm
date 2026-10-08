@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Steps accept two more statuses: `waiting` (on someone else) and `stuck`. The dashboard shows them
+  as tags; before, they were read as `todo` with a warning. Sheets from life-crm lite use them.
 - Public page: new "classic CV" layout. Sticky profile and section list on the left (a scrollable row of
   section buttons on phones), compact entries on the right with details on tap; self-hosted fonts.
 - New landing page at life-crm.jerryfane.com: the quiet design with the "Chat" hero (the
