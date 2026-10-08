@@ -19,7 +19,7 @@ from datetime import datetime, timezone
 from .sheet import header_key, key_values, parse_date, rows_of, shown, tab, text
 
 KINDS = {"period", "milestone", "task"}
-STATUSES = {"todo", "doing", "done", "to book"}
+STATUSES = {"todo", "doing", "done", "to book", "waiting", "stuck"}
 LAYOUTS = {"table", "cards", "feed"}
 COLORS = {"teal", "indigo", "amber", "blue", "pink", "green", "violet", "red", "orange", "gray"}
 
@@ -79,7 +79,7 @@ def convert(wb) -> dict:
             kind = "task"
         status = text(r.get("status")).lower() or "todo"
         if status not in STATUSES:
-            warn("Steps", n, f"'{title}': status '{status}' is not todo/doing/done/to book; treated as todo")
+            warn("Steps", n, f"'{title}': status '{status}' is not todo/doing/done/to book/waiting/stuck; treated as todo")
             status = "todo"
         progress = text(r.get("progress")).rstrip("%")
         step = {

@@ -72,7 +72,7 @@ either way round.
 | `title` | (required) |
 | `kind` | `period` (a bar from `start` to `end`), `milestone` (a diamond on `date`) or `task` (a to-do, `date` optional) |
 | `start`, `end`, `date` | dates as above |
-| `status` | `todo`, `doing`, `done` or `to book` |
+| `status` | `todo`, `doing`, `done`, `to book`, `waiting` (on someone else) or `stuck` |
 | `progress` | `0`–`100`, for periods |
 | `track` | rows inside a timeline's page, e.g. `Exams`, `Letters` |
 | `phase` | a shaded band behind the steps with the same phase |

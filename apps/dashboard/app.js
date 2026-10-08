@@ -162,7 +162,7 @@
     const when = s.kind === "period" && s.start
       ? `${fmtDate(s.start, s.approx)} – ${fmtDate(s.end, s.approx)}`
       : s.date ? fmtDate(s.date, s.approx) : "No date yet";
-    const status = { todo: "To do", doing: "In progress", done: "Done", "to book": "To book" }[s.status];
+    const status = { todo: "To do", doing: "In progress", done: "Done", "to book": "To book", waiting: "Waiting", stuck: "Stuck" }[s.status];
     return [s.title, [when, status, s.owner].filter(Boolean).join(" · "), s.notes];
   }
   function showTip(ev, lines) {
@@ -633,12 +633,14 @@
         const when = !kd ? "no date"
           : s.kind === "period" ? `${fmtDate(s.start, s.approx)} – ${fmtDate(s.end, s.approx)}`
           : s.status === "done" ? fmtDate(kd, s.approx) : fmtDue(kd, s.approx);
-        return h("li", { class: s.status === "to book" ? "todo" : s.status, id: `step-${s.i}` },
+        return h("li", { class: s.status === "to book" || s.status === "waiting" || s.status === "stuck" ? "todo" : s.status, id: `step-${s.i}` },
           h("span", { class: "n" }, s.status === "done" ? "✓" : ++num),
           h("span", { class: "s-b" },
             h("span", { class: "s-t" }, s.title,
               s.status === "doing" ? h("span", { class: "s-tag" }, "in progress") : null,
-              s.status === "to book" ? h("span", { class: "s-tag book" }, "to book") : null),
+              s.status === "to book" ? h("span", { class: "s-tag book" }, "to book") : null,
+              s.status === "waiting" ? h("span", { class: "s-tag wait" }, "waiting") : null,
+              s.status === "stuck" ? h("span", { class: "s-tag stuck" }, "stuck") : null),
             h("span", { class: "s-n" }, [s.track !== "General" ? s.track : "", s.notes].filter(Boolean).join(" · "))),
           h("span", { class: `w${late ? " hot" : ""}` }, when),
           avatar(s.owner));
