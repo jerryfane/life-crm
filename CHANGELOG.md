@@ -4,6 +4,13 @@
 
 - Steps accept two more statuses: `waiting` (on someone else) and `stuck`. The dashboard shows them
   as tags; before, they were read as `todo` with a warning. Sheets from life-crm lite use them.
+- Private dashboard: a collection with id `papers` becomes a research workspace. One `focus` row is
+  featured with its document, optional poster and supporting links, a cover image, stage milestones and
+  the next step; the rest stay in expandable lists. Stages come only from the sheet's `stage` column.
+- Private dashboard: optional `--conversation` JSON input adds a read-only agent conversation page at the
+  bottom of the sidebar. Topic filters, chronological chat bubbles, expandable messages and a Latest
+  button keep long conversations readable without changing the dashboard shell. Bodies render as text
+  with safe HTTP(S) links, author labels and local timestamps.
 - Public page: new "classic CV" layout. Sticky profile and section list on the left (a scrollable row of
   section buttons on phones), compact entries on the right with details on tap; self-hosted fonts.
 - New landing page at life-crm.jerryfane.com: the quiet design with the "Chat" hero (the

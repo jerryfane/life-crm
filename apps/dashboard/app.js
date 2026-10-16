@@ -676,6 +676,9 @@
     heart: '<path d="M12 20s-8-5-8-11a4 4 0 0 1 8-1 4 4 0 0 1 8 1c0 6-8 11-8 11z"/>',
     calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
     list: '<path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/>',
+    check: '<path d="m5 12 4 4L19 6"/>',
+    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    arrow: '<path d="M5 12h14m-6-6 6 6-6 6"/>',
   };
   const icon = (key) => {
     const s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -794,9 +797,95 @@
         i.values.link ? h("div", { class: "post-go" }, ext(i.values.link)) : null);
     }));
   }
+  // Papers have an explicit focus row; status still describes the topic decision,
+  // while stage describes manuscript progress. Neither is inferred from its title.
+  const PARKED_PAPERS = new Set(["dropped", "parked", "rejected", "cancelled", "canceled", "declined"]);
+  const PAPER_STAGES = {
+    preparation: { step: 0, label: "Preparation" },
+    drafting: { step: 0, label: "Draft in progress" },
+    internal_draft: { step: 1, label: "Internal draft ready" },
+    expert_review: { step: 1, label: "Expert review in progress" },
+    author_review: { step: 2, label: "Author review" },
+    ready_to_submit: { step: 3, label: "Ready for submission checks" },
+    submitted: { step: 4, label: "Submitted" },
+    published: { step: 4, label: "Published" },
+  };
+  function papersPage(c, list) {
+    const featured = list.find((i) => /^(yes|true|1)$/i.test(i.values.focus || "") && !PARKED_PAPERS.has(i.status));
+    const link = (url, text, primary = false, symbol = "document") => {
+      const a = ext(url, text);
+      if (a) { a.className = `btn pf-button${primary ? " pf-primary" : ""}`; a.prepend(icon(symbol)); }
+      return a;
+    };
+    const recordDetails = (i) => h("div", { class: "pf-record-details" }, detailBody(c, i),
+      h("div", { class: "pf-actions" }, link(i.values.link, "Open document ↗"), link(i.values.supporting_link, "Supporting files ↗", false, "folder")));
+    const group = (title, items) => !items.length ? null : h("details", { class: "pf-archive" },
+      h("summary", {}, h("span", { class: "pf-chevron", "aria-hidden": "true" }), title, h("span", { class: "pf-count" }, items.length)),
+      h("div", { class: "pf-archive-list" }, items.map((i) => h("details", { class: "pf-record" },
+        h("summary", {}, icon("document"), h("span", { class: "pf-record-title" }, h("strong", {}, i.title), h("small", {}, i.values.type || "")),
+          h("span", { class: "pf-record-status" }, PARKED_PAPERS.has(i.status) ? "Parked" : cap(i.status || "Proposal")),
+          h("span", { class: "pf-chevron", "aria-hidden": "true" })),
+        recordDetails(i)))));
+    const body = h("div", { class: "pf-workspace" });
+    if (featured) {
+      const v = featured.values;
+      const stage = PAPER_STAGES[v.stage];
+      const documentLabel = stage && stage.step === 4 ? "Read paper" : stage && v.stage !== "preparation" ? "Read draft" : "Open document";
+      const documentLink = link(v.link, `${documentLabel}${/\.pdf(?:[?#]|$)/i.test(v.link || "") ? " PDF" : ""} ↗`, true);
+      const preview = v.preview_image && /^(https?:\/\/|\/(?!\/))/.test(v.preview_image);
+      const metadata = [["Format", v.document_format], ["Evidence", v.evidence], ["Latest version", v.updated], ["Prepared by", v.prepared_by]].filter(([, value]) => value);
+      body.append(h("section", { class: "pf-card pf-hero", "aria-labelledby": "pf-current-title" },
+        h("div", { class: "pf-hero-top" }, h("span", { class: "pf-eyebrow" }, "Current research · ", v.type || "Paper"),
+          h("span", { class: `pf-badge${stage && stage.step > 0 ? " pf-ready" : ""}` }, stage ? stage.label : cap(featured.status || "Proposal"))),
+        h("div", { class: `pf-hero-main${preview ? " pf-with-preview" : ""}` },
+          h("div", {}, h("h2", { id: "pf-current-title" }, featured.title),
+            v.intro || v.summary ? h("p", { class: "pf-lede" }, v.intro || v.summary) : null,
+            h("div", { class: "pf-actions" }, documentLink || h("span", { class: "pf-small" }, "Draft link not yet added."),
+              link(v.poster_link, "One-page poster PDF ↗"),
+              link(v.supporting_link, "Supporting files ↗", false, "folder"))),
+          preview ? h("figure", { class: "pf-preview" }, h("img", { src: v.preview_image, alt: `First page of ${featured.title}`, width: 134, height: 190 }),
+            h("figcaption", {}, "First page · open PDF to read")) : null),
+        metadata.length ? h("dl", { class: "pf-metadata" }, metadata.map(([name, value]) => h("div", {}, h("dt", {}, name), h("dd", {}, value)))) : null));
+      const workflow = [
+        ["Evidence checked & draft prepared", "Preparation and agent-level source checks."],
+        ["Independent expert review", "Human clinical and review-methods assessment."],
+        [`${v.owner || "Author"}’s contribution & approval`, "Topic, authorship and final manuscript."],
+        ["Submission", "Final journal, disclosure and permission checks."],
+      ];
+      const progress = stage ? h("section", { class: "pf-card pf-milestones" },
+        h("h3", {}, "From evidence to submission"),
+        h("ol", { class: "pf-steps" }, workflow.map(([title, note], n) => h("li", { class: n < stage.step ? "pf-done" : n === stage.step ? "pf-current" : "pf-future" },
+          h("span", { class: "pf-step-mark", "aria-hidden": "true" }, n < stage.step ? icon("check") : n === stage.step ? icon("clock") : null),
+          h("div", {}, h("strong", {}, title), h("span", { class: "pf-sr-only" }, n < stage.step ? " — completed" : n === stage.step ? " — next or in progress" : " — not yet completed"),
+            h("small", {}, note)))))) : null;
+      const next = v.next_step ? h("section", { class: "pf-card pf-next" },
+        h("span", { class: "pf-next-icon", "aria-hidden": "true" }, icon("clock")),
+        h("span", { class: "pf-eyebrow" }, "Next step"), h("h3", {}, v.next_step),
+        v.next_detail ? h("p", {}, v.next_detail) : null,
+        ["internal_draft", "expert_review"].includes(v.stage) ? h("details", { class: "pf-requirements" },
+          h("summary", { class: "btn pf-button" }, "See review requirements", icon("arrow")),
+          h("ul", {}, h("li", {}, "Independent human assessment of clinical interpretation and methods."),
+            h("li", {}, "Review of the evidence table, source checks and remaining limitations."),
+            h("li", {}, `${v.owner || "The author"}’s contribution and approval before any submission.`))) : null,
+        v.effort ? h("footer", {}, v.effort) : null) : null;
+      if (progress || next) body.append(h("div", { class: `pf-focus-grid${progress && next ? "" : " pf-single"}` }, progress, next));
+      if (v.approval_note) body.append(h("p", { class: "pf-approval" }, v.approval_note));
+      body.append(h("details", { class: "pf-project-notes" }, h("summary", {}, "All project details"), recordDetails(featured)));
+    } else {
+      body.append(h("div", { class: "empty" }, h("b", {}, "No focus paper selected"),
+        h("p", {}, "The paper records below are still available. Mark the current paper’s focus field as yes in the spreadsheet.")));
+    }
+    const others = list.filter((i) => i !== featured);
+    for (const section of [group("Other papers & ideas", others.filter((i) => !PARKED_PAPERS.has(i.status))),
+      group("Parked ideas", others.filter((i) => PARKED_PAPERS.has(i.status)))]) if (section) body.append(section);
+    const page = pageShell(c.name, "Your current paper, without the clutter.", body);
+    page.classList.add("paper-focus");
+    return page;
+  }
   function collectionPage(c) {
     const list = sorted(c);
     if (!list.length) return pageShell(c.name, c.description, emptyState(c));
+    if (c.id === "papers") return papersPage(c, list);
     const counts = c.status_field && c.statuses.length
       ? c.statuses.map((s) => [s, list.filter((i) => i.status === s).length]).filter(([, n]) => n).map(([s, n]) => `${n} ${s}`).join(" · ")
       : `${list.length} item${list.length === 1 ? "" : "s"}`;
@@ -811,6 +900,107 @@
         h("i", { class: (KIND[f.kind] || KIND.file)[1] }, (KIND[f.kind] || KIND.file)[0]), h("span", {}, f.name, f.modified ? h("small", {}, `changed ${fmtDate(f.modified)}`) : null), h("span", { class: "w" }, "Open ↗")))
         : h("p", { class: "none" }, "The folder is empty."));
     return pageShell("Documents", "Everything lives in the shared Drive folder; this list refreshes with every update", body, { sheet: false });
+  }
+
+  function conversationPage() {
+    const conversation = DATA.conversation;
+    const messages = [...conversation.messages].reverse();
+    const topicNames = { chat: "Other", ...(conversation.topics || {}) };
+    const people = [...new Set(messages.map((m) => m.author))];
+    const title = conversation.title || people.join(" & ") || "Conversation";
+    const initials = (name) => name.split(/\s+/).filter(Boolean).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+    const expanded = new Set();
+    let topic = null;
+    const thread = h("div", { class: "cp-thread", tabindex: "0", role: "region", "aria-label": "Conversation messages" });
+    const filters = h("div", { class: "cp-topic-filters", role: "group", "aria-label": "Filter conversation topics" });
+    const latest = h("button", {
+      class: "cp-latest", type: "button", "aria-label": "Jump to latest message",
+      onclick: () => thread.scrollTo({ top: thread.scrollHeight, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }),
+    }, "Latest ↓");
+    const layout = () => {
+      for (const text of thread.querySelectorAll(".cp-text.clipped")) {
+        text.nextElementSibling.hidden = text.scrollHeight <= text.clientHeight + 1;
+      }
+    };
+    function messageText(text) {
+      const content = h("p", { class: "cp-text" });
+      let offset = 0;
+      for (const match of text.matchAll(/https?:\/\/[^\s<>]+/g)) {
+        const url = match[0].replace(/[),.;]+$/, "");
+        content.append(text.slice(offset, match.index),
+          h("a", { href: url, target: "_blank", rel: "noopener noreferrer" }, url), match[0].slice(url.length));
+        offset = match.index + match[0].length;
+      }
+      content.append(text.slice(offset));
+      return content;
+    }
+    function drawMessages() {
+      const filtered = topic === null ? messages : messages.filter((message) => message.topic === topic);
+      thread.replaceChildren(h("p", { class: "cp-archive" }, `${filtered.length} messages · Oldest to newest`));
+      if (!filtered.length) thread.append(h("p", { class: "none" }, "No messages in this private group yet."));
+      let day = "";
+      for (const message of filtered) {
+        const date = new Date(message.time);
+        const dateLabel = date.toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" });
+        if (day !== dateLabel) {
+          thread.append(h("div", { class: "cp-day" }, dateLabel));
+          day = dateLabel;
+        }
+        const text = messageText(message.text);
+        const bubble = h("div", { class: "cp-bubble" }, text);
+        if (message.text.length > 240 || message.text.split("\n").length > 5) {
+          const isExpanded = expanded.has(message.id);
+          text.classList.toggle("clipped", !isExpanded);
+          const button = h("button", {
+            class: "cp-expand", type: "button", "aria-expanded": String(isExpanded),
+            onclick: () => {
+              const open = !expanded.has(message.id);
+              if (open) expanded.add(message.id); else expanded.delete(message.id);
+              text.classList.toggle("clipped", !open);
+              button.setAttribute("aria-expanded", String(open));
+              button.textContent = open ? "Show less ↑" : "Read full message ↓";
+            },
+          }, isExpanded ? "Show less ↑" : "Read full message ↓");
+          bubble.append(button);
+        }
+        thread.append(h("article", { class: `cp-message${message.author === conversation.self ? " out" : ""}`, "data-message-id": message.id },
+          h("div", { class: "cp-meta" }, h("strong", {}, message.author),
+            h("time", { datetime: message.time }, date.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }))),
+          bubble));
+      }
+      requestAnimationFrame(() => {
+        if (!thread.isConnected) return;
+        layout();
+        thread.scrollTop = thread.scrollHeight;
+      });
+    }
+    const counts = new Map();
+    for (const message of messages) counts.set(message.topic, (counts.get(message.topic) || 0) + 1);
+    for (const [key, count] of [[null, messages.length], ...counts]) {
+      const button = h("button", {
+        class: "cp-filter", type: "button", "aria-pressed": String(key === topic),
+        onclick: () => {
+          topic = key;
+          for (const item of filters.children) item.setAttribute("aria-pressed", String(item === button));
+          drawMessages();
+        },
+      }, `${key === null ? "All" : topicNames[key] || key} · ${count}`);
+      filters.append(button);
+    }
+    const body = h("div", { class: "conversation" },
+      h("section", { class: "cp-room", "aria-label": "Private agent conversation" },
+        h("div", { class: "cp-room-head" },
+          h("div", { class: "cp-people" },
+            h("div", { class: "cp-avatar-pair", "aria-hidden": "true" }, people.slice(0, 2).map((name) =>
+              h("span", { class: `cp-avatar${name === conversation.self ? " engine" : ""}` }, initials(name)))),
+            h("div", {}, h("div", { class: "cp-heading" }, title), h("div", { class: "cp-sub" }, "Private group · Read-only"))),
+          latest),
+        filters, thread,
+        h("div", { class: "cp-bottom" }, h("span", {}, "Original wording · Device-local times"), h("span", {}, `${messages.length} messages`))),
+      h("p", { class: "conversation-note" },
+        `Snapshot synced ${new Date(conversation.synced_at).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}. Refresh to load new messages.`));
+    drawMessages();
+    return { el: pageShell("Agent conversation", "Background coordination", body, { sheet: false }), layout };
   }
 
   // ---------- sidebar shell ----------
@@ -839,7 +1029,9 @@
       groups.map((g) => [h("h6", {}, g.name), g.items]),
       DATA.documents ? [h("h6", {}, "Files"), link("#p/documents", "Documents", "folder", null, key === "p:documents")] : null,
       timelines.length ? [h("h6", {}, "Timelines"), tls] : null,
-      DATA.sheet_url ? sheetLink("＋ New timeline", "sidelink add") : null);
+      DATA.sheet_url ? sheetLink("＋ New timeline", "sidelink add") : null,
+      DATA.conversation ? h("div", { class: "sidebar-conversation" },
+        link("#conversation", "Agent conversation", "list", null, key === "conversation")) : null);
   }
   const shell = h("div", { class: "shell" });
   app.append(shell);
@@ -854,11 +1046,13 @@
     const t = hash.match(/^#t\/(.+)$/), p = hash.match(/^#p\/([\w-]+)$/);
     const tid = t && decodeURIComponent(t[1]);
     if (tid && byId.has(tid)) { key = `t:${tid}`; title = byId.get(tid).name; }
+    else if (hash === "#conversation" && DATA.conversation) { key = "conversation"; title = "Agent conversation"; }
     else if (p && colById.has(p[1])) { key = `p:${p[1]}`; title = colById.get(p[1]).name; }
     else if (p && p[1] === "documents" && DATA.documents) { key = "p:documents"; title = "Documents"; }
     else if (hash && hash !== "#") history.replaceState(null, "", location.pathname + location.search);
     if (key !== lastRoute) weekShift = 0;
     if (key.startsWith("t:")) view = focus(tid);
+    else if (key === "conversation") view = conversationPage();
     else if (key === "p:documents") view = { el: documentsPage(), layout: () => {} };
     else if (key.startsWith("p:")) view = { el: collectionPage(colById.get(p[1])), layout: () => {} };
     else view = overview();
