@@ -13,6 +13,7 @@ Options:
     --only dashboard,site,cv   build a subset
     --cv                       also build the CV (and offer it as a download on the site)
     --documents FILE.json      list of Drive files for the Documents page (written by pull.py)
+    --conversation FILE.json   read-only agent conversation (private dashboard only)
 
 Requirements: Python 3.10+, `pip install openpyxl pillow`; LaTeX (latexmk) only for the CV.
 """
@@ -71,12 +72,14 @@ def previous_data(index: Path) -> dict | None:
         return None
 
 
-def build_dashboard(wb, out: Path, documents: dict | None, extra_warnings: list[str]) -> dict:
+def build_dashboard(wb, out: Path, documents: dict | None, extra_warnings: list[str], conversation: dict | None) -> dict:
     """extra_warnings: site/CV problems, shown on the dashboard too so the person editing the sheet sees them."""
     data = dashboard.convert(wb)
     data["warnings"] += extra_warnings
     if documents:
         data["documents"] = documents
+    if conversation is not None:
+        data["conversation"] = conversation
     # synced_at says when the content last changed: keep the earlier time when nothing else did,
     # so an unchanged sheet builds a byte-identical page (and a publisher can skip the upload).
     before = previous_data(out / "index.html")
@@ -101,6 +104,7 @@ def main() -> int:
     ap.add_argument("--only", default="dashboard,site", help="comma list of dashboard, site, cv")
     ap.add_argument("--cv", action="store_true", help="also build the CV")
     ap.add_argument("--documents", type=Path, help="JSON list of Drive files for the Documents page")
+    ap.add_argument("--conversation", type=Path, help="JSON agent conversation for the private dashboard")
     args = ap.parse_args()
 
     parts = {p.strip() for p in args.only.split(",") if p.strip()} | ({"cv"} if args.cv else set())
@@ -118,6 +122,21 @@ def main() -> int:
             sys.exit(f"--documents {args.documents}: not valid JSON ({e}); run pull.py again")
         if not isinstance(documents, dict) or not isinstance(documents.get("items"), list):
             sys.exit(f"--documents {args.documents}: expected {{\"root_url\": ..., \"items\": [...]}} as written by pull.py")
+    conversation = None
+    if args.conversation:
+        try:
+            conversation = json.loads(args.conversation.read_text())
+            if not isinstance(conversation, dict) or not isinstance(conversation["messages"], list):
+                raise ValueError("expected an object with a messages list")
+            if not isinstance(conversation["synced_at"], str):
+                raise ValueError("synced_at must be a timestamp string")
+            for message in conversation["messages"]:
+                if not isinstance(message, dict) or not all(
+                    isinstance(message.get(key), str) for key in ("id", "author", "time", "topic", "text")
+                ):
+                    raise ValueError("each message needs string id, author, time, topic and text")
+        except (OSError, ValueError, KeyError, TypeError) as e:
+            sys.exit(f"--conversation {args.conversation}: {e}")
     warnings: list[str] = []
     built = []
 
@@ -143,7 +162,7 @@ def main() -> int:
     # The CV (twice) and the site read the same Entries rows, so each reports the same problems.
     warnings = list(dict.fromkeys(warnings))
     if "dashboard" in parts:
-        data = build_dashboard(wb, args.out / "dashboard", documents, warnings)
+        data = build_dashboard(wb, args.out / "dashboard", documents, warnings, conversation)
         warnings = data["warnings"]
         built.append(f"dashboard: {args.out / 'dashboard'} ({len(data['timelines'])} timelines, {len(data['steps'])} steps, {len(data['collections'])} pages)")
 

@@ -40,6 +40,23 @@ python3 apps/deploy.py build --site me-site=me.example.com --dashboard me-crm=cr
   the login on (Workers & Pages > your Worker > Access). Rerun it afterwards.
 - No Cloudflare? The dashboard also works offline: open `build/dashboard/index.html` in a browser.
 
+### Optional private agent conversation
+
+Pass `--conversation conversation.json` to `build.py` to add a read-only **Agent conversation** page
+at `#conversation`, last in the dashboard sidebar. Without the option, no conversation link or data appears.
+This input is included only in the dashboard, never the public site or CV; protect the dashboard before deployment.
+
+The JSON object has `synced_at` (ISO timestamp) and `messages` (newest first). Each message has string fields
+`id`, `author` (display name), `time` (ISO timestamp), `topic` and `text`. Bodies render as plain text, not HTML.
+Optional top-level fields: `title` (page heading; defaults to the authors' names), `self` (the author whose
+messages appear as outgoing) and `topics` (an object mapping topic strings to friendly filter names).
+The caller exports the conversation and triggers rebuilds when it changes. Preserve `synced_at` when the
+messages are unchanged so identical input does not cause unnecessary deploys. Open pages update on refresh.
+The page displays chronological chat bubbles, starts at the latest message, and offers topic filters with
+counts, expandable long messages and a **Latest** button. HTTP(S) URLs become links without interpreting
+message text as HTML. New topics appear automatically. The conversation styles do not alter other pages.
+
+
 ## The spreadsheet
 
 Tab names and column headers are case-insensitive. Spaces in headers become `_`
@@ -110,6 +127,16 @@ either way round.
 Special column names in collection tabs: `fit` or `rating` (0–5) show as a bar of squares;
 `who` or `owner` show as an avatar; `link` becomes an "Open" link; in a `feed`, `timeline`
 (a Timelines `id`) shows as a colored tag.
+
+A collection with `id` `papers` gets a research workspace instead of a plain list. Mark one row
+`focus` = `yes` to feature it; parked statuses (`dropped`, `parked`, `rejected`, `cancelled`,
+`declined`) are never featured, and every row stays reachable in expandable lists. Optional columns:
+`stage` (`preparation`, `drafting`, `internal_draft`, `expert_review`, `author_review`,
+`ready_to_submit`, `submitted`, `published`), `intro`, `link` (main document), `supporting_link`,
+`poster_link` (a one-page summary button), `preview_image` (first-page image, `https://` or a
+site path), `document_format`, `evidence`, `updated`, `prepared_by`, `next_step`, `next_detail`,
+`approval_note`, and `owner` (named in the author-review step). The page never infers a stage from
+a title or link; an unknown stage shows no milestone claims.
 
 Status colors follow the meaning of the word: done/accepted/paid/normal are green,
 doing/applied/scheduled/pending are purple, rejected/overdue/missed/high are red.
